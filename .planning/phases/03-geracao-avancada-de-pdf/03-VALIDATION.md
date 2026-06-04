@@ -38,10 +38,10 @@ created: 2026-06-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 03-01-01 | 01 | 1 | PDF-02, PDF-04 | T-03-01 | Geração e design de PDF client-side | lint | npm run typecheck | ✓ | pending |
-| 03-01-02 | 01 | 1 | PDF-01, PDF-03 | T-03-02 | Persistência de formulário e controle de loading | lint | npm run typecheck | ✓ | pending |
+| 03-01-01 | 01 | 1 | PDF-02, PDF-04 | T-03-01 | Geração e design de PDF client-side | lint | npm run typecheck | ✓ | passed |
+| 03-01-02 | 01 | 1 | PDF-01, PDF-03 | T-03-02 | Persistência de formulário e controle de loading | lint | npm run typecheck | ✓ | passed |
 
-*Status: pending*
+*Status: passed*
 
 ---
 
