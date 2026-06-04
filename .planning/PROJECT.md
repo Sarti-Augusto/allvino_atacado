@@ -18,14 +18,15 @@ Proporcionar aos clientes B2B um catálogo de vinhos rápido, interativo e gerad
 * ✓ Geração client-side básica de PDF usando jsPDF e jspdf-autotable.
 * ✓ Supabase Schema Inicial (`001_initial_schema.sql`) contendo tabelas `wines`, `admin_users`, triggers de atualização, políticas RLS e bucket `wine-images`.
 * ✓ Cliente Supabase configurado para browser e server components.
+* ✓ **Autenticação Administrativa**: Login administrativo seguro utilizando Supabase Auth integrado com Server Actions e proteção de rotas de admin.
+* ✓ **Painel Administrativo Completo (CRUD)**: Área restrita para cadastro, edição e exclusão de vinhos, controle de ativação (`ativo`), destaque (`destaque`) e ordenação manual.
+* ✓ **Upload de Imagens de Vinhos**: Integração com o bucket `wine-images` do Supabase Storage no formulário de CRUD do admin.
+* ✓ **Geração Avançada de PDF**: Customizações no layout do PDF (capas, termos comerciais, dados do representante, ordenação e melhorias visuais).
+* ✓ **Compartilhamento por QR Code & Compartilhamento Inteligente**: Gerador de QR Code na tela de detalhes do vinho (`/vinho/[id]`) para facilitar o acesso rápido no mobile, e compartilhamento com Web Share API + fallback clipboard.
 
 ### Active
 
-* [ ] **Autenticação Administrativa**: Login administrativo seguro utilizando Supabase Auth integrado com Server Actions e proteção de rotas de admin.
-* [ ] **Painel Administrativo Completo (CRUD)**: Área restrita para cadastro, edição e exclusão de vinhos, controle de ativação (`ativo`), destaque (`destaque`) e ordenação manual.
-* [ ] **Upload de Imagens de Vinhos**: Integração com o bucket `wine-images` do Supabase Storage no formulário de CRUD do admin.
-* [ ] **Geração Avançada de PDF**: Customizações no layout do PDF (capas, termos comerciais, dados do representante, ordenação e melhorias visuais).
-* [ ] **Compartilhamento por QR Code**: Gerador de QR Code na tela de detalhes do vinho (`/vinho/[id]`) para facilitar o acesso rápido no mobile.
+*(Todos os requisitos planejados para a v1.0 foram validados)*
 
 ### Out of Scope
 
@@ -48,7 +49,7 @@ O projeto já possui a estrutura Next.js 14 (App Router) configurada, integrada 
 |----------|-----------|---------|
 | Next.js App Router | SEO por vinho e renderização híbrida rápida. | ✓ Concluído |
 | jsPDF client-side | Geração de PDFs customizados sem custo de servidor. | ✓ Concluído |
-| Supabase Auth + RLS | Segurança baseada no banco de dados e políticas robustas sem backend próprio. | ⏳ Em Andamento |
+| Supabase Auth + RLS | Segurança baseada no banco de dados e políticas robustas sem backend próprio. | ✓ Concluído |
 
 ---
 *Last updated: 2026-06-04 after Project Initialization*

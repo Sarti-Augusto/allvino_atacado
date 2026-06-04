@@ -38,12 +38,12 @@ created: 2026-06-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 04-01-01 | 01 | 1 | - | - | Instalar dependências | lint | npm run typecheck | ✓ | pending |
-| 04-01-02 | 01 | 1 | SHARE-01 | T-04-01 | Geração segura de SVG client-side | lint | npm run typecheck | ✓ | pending |
-| 04-01-03 | 01 | 1 | SHARE-02 | T-04-02 | Compartilhamento seguro Web Share | lint | npm run typecheck | ✓ | pending |
-| 04-01-04 | 01 | 1 | SHARE-01, SHARE-02 | T-04-03 | Renderização da ficha técnica | lint | npm run typecheck | ✓ | pending |
+| 04-01-01 | 01 | 1 | - | - | Instalar dependências | lint | npm run typecheck | ✓ | verified |
+| 04-01-02 | 01 | 1 | SHARE-01 | T-04-01 | Geração segura de SVG client-side | lint | npm run typecheck | ✓ | verified |
+| 04-01-03 | 01 | 1 | SHARE-02 | T-04-02 | Compartilhamento seguro Web Share | lint | npm run typecheck | ✓ | verified |
+| 04-01-04 | 01 | 1 | SHARE-01, SHARE-02 | T-04-03 | Renderização da ficha técnica | lint | npm run typecheck | ✓ | verified |
 
-*Status: pending*
+*Status: verified*
 
 ---
 
