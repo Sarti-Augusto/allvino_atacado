@@ -9,29 +9,29 @@ See: .planning/PROJECT.md (updated 2026-06-04)
 
 ## Current Position
 
-Phase: 1 of 2 (Analytics & Histórico)
+Phase: 2 of 2 (Integração WhatsApp Business)
 Plan: 0 of 0 in current phase
-Status: Scoping
-Last activity: 2026-06-04 — Milestone v2.0 initiated
+Status: Ready to discuss
+Last activity: 2026-06-04 — Phase 1 of Milestone v2.0 completed
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [▓▓▓▓▓░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0 (v2.0)
-- Average duration: 0 min
-- Total execution time: 0 hours
+- Total plans completed: 1 (v2.0)
+- Average duration: 45 min
+- Total execution time: 0.75 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 | 0 | 0 | 0 |
+| 1 | 1 | 1 | 45m |
 | 2 | 0 | 0 | 0 |
 
 **Recent Trend:**
-- Trend: Milestone 2 Started
+- Trend: Stable / Phase 1 Completed
 
 ## Accumulated Context
 
@@ -41,8 +41,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- [ ] Detalhar requisitos de autenticação de cliente (B2B) vs. rastreamento de representante.
-- [ ] Criar especificações e planos de fases para a Fase 1 da v2.0.
+- [x] Detalhar requisitos de autenticação de cliente (B2B) vs. rastreamento de representante.
+- [x] Criar especificações e planos de fases para a Fase 1 da v2.0.
+- [ ] Discutir e planejar a Fase 2 da v2.0 (Integração WhatsApp Business - Evolution API).
 
 ### Blockers/Concerns
 
@@ -55,5 +56,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-06-04
-Stopped at: Milestone v2.0 Initiated
-Resume file: .planning/REQUIREMENTS.md
+Stopped at: Phase 1 Completed
+Resume file: .planning/ROADMAP.md

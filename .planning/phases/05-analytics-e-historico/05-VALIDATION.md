@@ -38,13 +38,13 @@ created: 2026-06-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 05-01-01 | 01 | 1 | - | - | Migração de Banco | lint | npm run typecheck | ✓ | pending |
-| 05-01-02 | 01 | 1 | ANLT-01, ANLT-02 | T-05-01 | Validação de Ações no Servidor | lint | npm run typecheck | ✓ | pending |
-| 05-01-03 | 01 | 1 | ANLT-02 | T-05-02 | Rastreamento seguro de clicks | lint | npm run typecheck | ✓ | pending |
-| 05-01-04 | 01 | 1 | ANLT-01, ANLT-02 | T-05-03 | Gravação de histórico autenticado | lint | npm run typecheck | ✓ | pending |
-| 05-01-05 | 01 | 1 | ANLT-01, ANLT-02 | T-05-04 | Painel de visualização admin | lint | npm run typecheck | ✓ | pending |
+| 05-01-01 | 01 | 1 | - | - | Migração de Banco | lint | npm run typecheck | ✓ | verified |
+| 05-01-02 | 01 | 1 | ANLT-01, ANLT-02 | T-05-01 | Validação de Ações no Servidor | lint | npm run typecheck | ✓ | verified |
+| 05-01-03 | 01 | 1 | ANLT-02 | T-05-02 | Rastreamento seguro de clicks | lint | npm run typecheck | ✓ | verified |
+| 05-01-04 | 01 | 1 | ANLT-01, ANLT-02 | T-05-03 | Gravação de histórico autenticado | lint | npm run typecheck | ✓ | verified |
+| 05-01-05 | 01 | 1 | ANLT-01, ANLT-02 | T-05-04 | Painel de visualização admin | lint | npm run typecheck | ✓ | verified |
 
-*Status: pending*
+*Status: verified*
 
 ---
 
