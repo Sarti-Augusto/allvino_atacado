@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { FileDown, Loader2, X, Wine } from 'lucide-react';
 import { useSelectionStore } from '@/store/selection-store';
 import { generateCatalogPdfWithImages, downloadBlob } from '@/lib/pdf/generate-catalog-pdf';
+import { createBrowserSupabase } from '@/lib/supabase-client';
+import { saveCatalogHistoryAction, recordWineEventAction } from '@/app/actions/analytics';
 
 const BRL = (n: number) =>
   n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -20,6 +22,10 @@ export function FloatingPdfButton() {
   const [deliveryTime, setDeliveryTime] = useState('');
   const [freightInfo, setFreightInfo] = useState('');
 
+  const [isRep, setIsRep] = useState(false);
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+
   // Carregar dados salvos no localStorage (apenas no cliente após montagem)
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -29,6 +35,18 @@ export function FloatingPdfButton() {
       setDeliveryTime(localStorage.getItem('allvino_pdf_delivery_time') || '');
       setFreightInfo(localStorage.getItem('allvino_pdf_freight_info') || '');
     }
+    
+    // Checar se o usuário é representante (sessão ativa)
+    async function checkSession() {
+      try {
+        const clientSupabase = createBrowserSupabase();
+        const { data: { session } } = await clientSupabase.auth.getSession();
+        setIsRep(!!session?.user);
+      } catch (err) {
+        console.error('Error checking representative session', err);
+      }
+    }
+    checkSession();
   }, []);
 
   if (count === 0) return null;
@@ -84,6 +102,31 @@ export function FloatingPdfButton() {
       });
       const filename = `allvino-b2b-catalogo-${new Date().toISOString().slice(0, 10)}.pdf`;
       downloadBlob(blob, filename);
+
+      // Registrar orçamento em banco caso seja representante logado
+      if (isRep) {
+        await saveCatalogHistoryAction({
+          clienteNome: clientName || 'Cliente Geral B2B',
+          clienteWhatsapp: clientPhone || '',
+          condicoesComerciais: {
+            frete: freightInfo || 'A combinar',
+            prazo: deliveryTime || 'A combinar',
+            pedidoMinimo: minOrder || 'A combinar'
+          },
+          vinhosSelecionados: wines.map(w => ({
+            id: w.id,
+            nome: w.nome,
+            preco_atacado: w.preco_atacado,
+            tipo: w.tipo
+          }))
+        });
+
+        // Registrar métrica de download para cada vinho selecionado
+        for (const w of wines) {
+          await recordWineEventAction(w.id, 'download');
+        }
+      }
+
       setOpen(false);
     } catch (err) {
       console.error('Falha ao gerar PDF', err);
@@ -157,6 +200,49 @@ export function FloatingPdfButton() {
               <h3 className="font-display text-sm font-semibold text-stone-900">
                 Identificação & Condições Comerciais
               </h3>
+
+              {isRep && (
+                <div className="rounded-xl border border-rose-200/60 bg-rose-50/20 p-3.5 space-y-2.5 mb-3">
+                  <div className="flex items-center justify-between border-b border-rose-100 pb-1.5 mb-1.5">
+                    <span className="text-[10px] font-bold text-rose-800 uppercase tracking-wider">
+                      Área do Representante
+                    </span>
+                    <span className="text-[9px] font-medium text-stone-400">
+                      Registro de Histórico Ativo
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor="clientName" className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                        Nome do Cliente / Empresa
+                      </label>
+                      <input
+                        id="clientName"
+                        type="text"
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
+                        disabled={loading}
+                        placeholder="Ex: Restaurante Fasano"
+                        className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs text-stone-800 placeholder-stone-400 focus:border-allvino-500 focus:outline-none focus:ring-1 focus:ring-allvino-500 disabled:bg-stone-50 disabled:text-stone-400"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="clientPhone" className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                        WhatsApp do Cliente
+                      </label>
+                      <input
+                        id="clientPhone"
+                        type="text"
+                        value={clientPhone}
+                        onChange={(e) => setClientPhone(e.target.value)}
+                        disabled={loading}
+                        placeholder="Ex: (11) 98888-8888"
+                        className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs text-stone-800 placeholder-stone-400 focus:border-allvino-500 focus:outline-none focus:ring-1 focus:ring-allvino-500 disabled:bg-stone-50 disabled:text-stone-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">

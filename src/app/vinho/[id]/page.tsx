@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { createServerSupabase } from '@/lib/supabase';
 import { ShareButton } from '@/components/catalog/ShareButton';
 import { WineQrCode } from '@/components/catalog/WineQrCode';
+import { WineViewTracker } from '@/components/catalog/WineViewTracker';
 import { headers } from 'next/headers';
 
 export const revalidate = 300;
@@ -33,6 +34,7 @@ export default async function WinePage({ params }: { params: { id: string } }) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <WineViewTracker wineId={wine.id} />
       <nav className="mb-4 text-sm text-stone-500">
         <a href="/" className="hover:text-rose-800">Catalogo</a>
         <span className="mx-2">/</span>
