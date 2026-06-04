@@ -7,32 +7,32 @@
 
 ### Autenticação (AUTH)
 
-- [ ] **AUTH-01**: Usuário administrador pode fazer login com email e senha usando Supabase Auth.
-- [ ] **AUTH-02**: Middleware do Next.js bloqueia rotas sob `/admin` para usuários não autenticados, redirecionando para `/admin/login`.
-- [ ] **AUTH-03**: Persistência de sessão de login administrativa após recarregamento do navegador.
+- [x] **AUTH-01**: Usuário administrador pode fazer login com email e senha usando Supabase Auth.
+- [x] **AUTH-02**: Middleware do Next.js bloqueia rotas sob `/admin` para usuários não autenticados, redirecionando para `/admin/login`.
+- [x] **AUTH-03**: Persistência de sessão de login administrativa após recarregamento do navegador.
 
 ### Painel Admin & CRUD (ADMIN)
 
-- [ ] **ADMIN-01**: Dashboard administrativo exibindo estatísticas rápidas do catálogo (total de vinhos, ativos, destaques).
-- [ ] **ADMIN-02**: Listagem interativa de vinhos no painel admin com paginação, busca e filtros rápidos.
-- [ ] **ADMIN-03**: Formulário de criação de vinhos com validações (nome, produtor, preço atacado, uva, safra).
-- [ ] **ADMIN-04**: Formulário de edição de vinhos existentes.
-- [ ] **ADMIN-05**: Exclusão segura de vinhos com confirmação em tela.
-- [ ] **ADMIN-06**: Upload e associação de imagem do vinho diretamente para o bucket `wine-images` do Supabase Storage.
-- [ ] **ADMIN-07**: Toggle instantâneo para ativar/desativar vinho (`ativo = true/false`) e marcar como destaque (`destaque = true/false`).
-- [ ] **ADMIN-08**: Ordenação manual dos vinhos no catálogo através de interface arrastar-e-soltar ou botões de ordem.
+- [x] **ADMIN-01**: Dashboard administrativo exibindo estatísticas rápidas do catálogo (total de vinhos, ativos, destaques).
+- [x] **ADMIN-02**: Listagem interativa de vinhos no painel admin com paginação, busca e filtros rápidos.
+- [x] **ADMIN-03**: Formulário de criação de vinhos com validações (nome, produtor, preço atacado, uva, safra).
+- [x] **ADMIN-04**: Formulário de edição de vinhos existentes.
+- [x] **ADMIN-05**: Exclusão segura de vinhos com confirmação em tela.
+- [x] **ADMIN-06**: Upload e associação de imagem do vinho diretamente para o bucket `wine-images` do Supabase Storage.
+- [x] **ADMIN-07**: Toggle instantâneo para ativar/desativar vinho (`ativo = true/false`) e marcar como destaque (`destaque = true/false`).
+- [x] **ADMIN-08**: Ordenação manual dos vinhos no catálogo através de interface arrastar-e-soltar ou botões de ordem.
 
 ### Geração Avançada de PDF (PDF)
 
-- [ ] **PDF-01**: Botão flutuante no catálogo que gera PDF apenas dos vinhos selecionados via Zustand store.
-- [ ] **PDF-02**: Inclusão de capa estilizada no PDF (marca Allvino, título e data de geração).
-- [ ] **PDF-03**: Formulário modal no front-end para o usuário inserir informações comerciais (prazo, pedido mínimo, frete) e dados do representante antes de exportar o PDF.
-- [ ] **PDF-04**: Otimização/pré-carregamento de imagens do catálogo para evitar que o PDF seja gerado com imagens em branco ou quebradas.
+- [x] **PDF-01**: Botão flutuante no catálogo que gera PDF apenas dos vinhos selecionados via Zustand store.
+- [x] **PDF-02**: Inclusão de capa estilizada no PDF (marca Allvino, título e data de geração).
+- [x] **PDF-03**: Formulário modal no front-end para o usuário inserir informações comerciais (prazo, pedido mínimo, frete) e dados do representante antes de exportar o PDF.
+- [x] **PDF-04**: Otimização/pré-carregamento de imagens do catálogo para evitar que o PDF seja gerado com imagens em branco ou quebradas.
 
 ### Compartilhamento & QR Code (SHARE)
 
-- [ ] **SHARE-01**: Exibição de QR Code único na tela de detalhe de cada vinho (`/vinho/[id]`).
-- [ ] **SHARE-02**: Botão para compartilhar link do vinho ou PDF diretamente via Web Share API ou WhatsApp (wa.me).
+- [x] **SHARE-01**: Exibição de QR Code único na tela de detalhe de cada vinho (`/vinho/[id]`).
+- [x] **SHARE-02**: Botão para compartilhar link do vinho ou PDF diretamente via Web Share API ou WhatsApp (wa.me).
 
 ## v2 Requirements
 
@@ -56,23 +56,23 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1: Autenticação & Segurança | Pending |
-| AUTH-02 | Phase 1: Autenticação & Segurança | Pending |
-| AUTH-03 | Phase 1: Autenticação & Segurança | Pending |
-| ADMIN-01 | Phase 2: Painel Admin & CRUD | Pending |
-| ADMIN-02 | Phase 2: Painel Admin & CRUD | Pending |
-| ADMIN-03 | Phase 2: Painel Admin & CRUD | Pending |
-| ADMIN-04 | Phase 2: Painel Admin & CRUD | Pending |
-| ADMIN-05 | Phase 2: Painel Admin & CRUD | Pending |
-| ADMIN-06 | Phase 2: Painel Admin & CRUD | Pending |
-| ADMIN-07 | Phase 2: Painel Admin & CRUD | Pending |
-| ADMIN-08 | Phase 2: Painel Admin & CRUD | Pending |
-| PDF-01 | Phase 3: Geração Avançada de PDF | Pending |
-| PDF-02 | Phase 3: Geração Avançada de PDF | Pending |
-| PDF-03 | Phase 3: Geração Avançada de PDF | Pending |
-| PDF-04 | Phase 3: Geração Avançada de PDF | Pending |
-| SHARE-01 | Phase 4: QR Code & Compartilhamento | Pending |
-| SHARE-02 | Phase 4: QR Code & Compartilhamento | Pending |
+| AUTH-01 | Phase 1: Autenticação & Segurança | Passed |
+| AUTH-02 | Phase 1: Autenticação & Segurança | Passed |
+| AUTH-03 | Phase 1: Autenticação & Segurança | Passed |
+| ADMIN-01 | Phase 2: Painel Admin & CRUD | Passed |
+| ADMIN-02 | Phase 2: Painel Admin & CRUD | Passed |
+| ADMIN-03 | Phase 2: Painel Admin & CRUD | Passed |
+| ADMIN-04 | Phase 2: Painel Admin & CRUD | Passed |
+| ADMIN-05 | Phase 2: Painel Admin & CRUD | Passed |
+| ADMIN-06 | Phase 2: Painel Admin & CRUD | Passed |
+| ADMIN-07 | Phase 2: Painel Admin & CRUD | Passed |
+| ADMIN-08 | Phase 2: Painel Admin & CRUD | Passed |
+| PDF-01 | Phase 3: Geração Avançada de PDF | Passed |
+| PDF-02 | Phase 3: Geração Avançada de PDF | Passed |
+| PDF-03 | Phase 3: Geração Avançada de PDF | Passed |
+| PDF-04 | Phase 3: Geração Avançada de PDF | Passed |
+| SHARE-01 | Phase 4: QR Code & Compartilhamento | Passed |
+| SHARE-02 | Phase 4: QR Code & Compartilhamento | Passed |
 
 **Coverage:**
 - v1 requirements: 17 total
