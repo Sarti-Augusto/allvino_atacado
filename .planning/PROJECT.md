@@ -1,5 +1,7 @@
 # Allvino Catalog B2B
 
+**Current Version:** v1.0 (Shipped 2026-06-04)
+
 ## What This Is
 
 O Allvino Catalog B2B é um aplicativo web (PWA) de catálogo interativo de vinhos premium voltado para o mercado de atacado (B2B). Ele permite que atacadistas de vinhos atendam restaurantes, bares, supermercados e empórios com agilidade, gerando catálogos PDF customizados client-side e facilitando o compartilhamento de seleções de produtos via WhatsApp e QR Code.
@@ -52,4 +54,4 @@ O projeto já possui a estrutura Next.js 14 (App Router) configurada, integrada 
 | Supabase Auth + RLS | Segurança baseada no banco de dados e políticas robustas sem backend próprio. | ✓ Concluído |
 
 ---
-*Last updated: 2026-06-04 after Project Initialization*
+*Last updated: 2026-06-04 after Milestone v1.0 Completion*

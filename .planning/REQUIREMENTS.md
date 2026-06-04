@@ -1,84 +1,28 @@
-# Requirements: Allvino Catalog B2B
+# Requirements: Allvino Catalog B2B v2.0
 
 **Defined:** 2026-06-04
-**Core Value:** Proporcionar aos clientes B2B um catálogo de vinhos rápido, interativo e gerador de vendas, permitindo a seleção ágil de produtos e a exportação direta para orçamentos e compartilhamentos personalizados.
-
-## v1 Requirements
-
-### Autenticação (AUTH)
-
-- [x] **AUTH-01**: Usuário administrador pode fazer login com email e senha usando Supabase Auth.
-- [x] **AUTH-02**: Middleware do Next.js bloqueia rotas sob `/admin` para usuários não autenticados, redirecionando para `/admin/login`.
-- [x] **AUTH-03**: Persistência de sessão de login administrativa após recarregamento do navegador.
-
-### Painel Admin & CRUD (ADMIN)
-
-- [x] **ADMIN-01**: Dashboard administrativo exibindo estatísticas rápidas do catálogo (total de vinhos, ativos, destaques).
-- [x] **ADMIN-02**: Listagem interativa de vinhos no painel admin com paginação, busca e filtros rápidos.
-- [x] **ADMIN-03**: Formulário de criação de vinhos com validações (nome, produtor, preço atacado, uva, safra).
-- [x] **ADMIN-04**: Formulário de edição de vinhos existentes.
-- [x] **ADMIN-05**: Exclusão segura de vinhos com confirmação em tela.
-- [x] **ADMIN-06**: Upload e associação de imagem do vinho diretamente para o bucket `wine-images` do Supabase Storage.
-- [x] **ADMIN-07**: Toggle instantâneo para ativar/desativar vinho (`ativo = true/false`) e marcar como destaque (`destaque = true/false`).
-- [x] **ADMIN-08**: Ordenação manual dos vinhos no catálogo através de interface arrastar-e-soltar ou botões de ordem.
-
-### Geração Avançada de PDF (PDF)
-
-- [x] **PDF-01**: Botão flutuante no catálogo que gera PDF apenas dos vinhos selecionados via Zustand store.
-- [x] **PDF-02**: Inclusão de capa estilizada no PDF (marca Allvino, título e data de geração).
-- [x] **PDF-03**: Formulário modal no front-end para o usuário inserir informações comerciais (prazo, pedido mínimo, frete) e dados do representante antes de exportar o PDF.
-- [x] **PDF-04**: Otimização/pré-carregamento de imagens do catálogo para evitar que o PDF seja gerado com imagens em branco ou quebradas.
-
-### Compartilhamento & QR Code (SHARE)
-
-- [x] **SHARE-01**: Exibição de QR Code único na tela de detalhe de cada vinho (`/vinho/[id]`).
-- [x] **SHARE-02**: Botão para compartilhar link do vinho ou PDF diretamente via Web Share API ou WhatsApp (wa.me).
+**Core Value:** Aprimorar o engajamento comercial B2B através de métricas de cliques, históricos de exportações de catálogos e automação de envio de PDFs via WhatsApp Business.
 
 ## v2 Requirements
 
-### Analytics & Histórico
+### Analytics & Histórico (ANLT)
 
-- **ANLT-01**: Histórico de catálogos gerados por cliente autenticado.
-- **ANLT-02**: Dashboard de cliques e acessos de clientes B2B em cada vinho para análise comercial.
+- [ ] **ANLT-01**: Histórico de catálogos gerados por cliente autenticado visível no painel administrativo.
+- [ ] **ANLT-02**: Dashboard de cliques e acessos de clientes B2B em cada vinho para análise comercial.
 
-### Integrações
+### Integrações (INTG)
 
-- **INTG-01**: Integração direta com a API do WhatsApp Business para envio automático do catálogo PDF selecionado.
-
-## Out of Scope
-
-| Feature | Reason |
-|---------|--------|
-| Gateway de Pagamento | O foco inicial é apenas a geração e compartilhamento de catálogos personalizados. Os pedidos e pagamentos são negociados externamente. |
-| Aplicativo Mobile Nativo | Mantido foco exclusivo em Next.js Web App PWA para maximizar compatibilidade e agilidade de manutenção. |
+- [ ] **INTG-01**: Integração direta com a API do WhatsApp Business para envio automático do catálogo PDF selecionado.
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1: Autenticação & Segurança | Passed |
-| AUTH-02 | Phase 1: Autenticação & Segurança | Passed |
-| AUTH-03 | Phase 1: Autenticação & Segurança | Passed |
-| ADMIN-01 | Phase 2: Painel Admin & CRUD | Passed |
-| ADMIN-02 | Phase 2: Painel Admin & CRUD | Passed |
-| ADMIN-03 | Phase 2: Painel Admin & CRUD | Passed |
-| ADMIN-04 | Phase 2: Painel Admin & CRUD | Passed |
-| ADMIN-05 | Phase 2: Painel Admin & CRUD | Passed |
-| ADMIN-06 | Phase 2: Painel Admin & CRUD | Passed |
-| ADMIN-07 | Phase 2: Painel Admin & CRUD | Passed |
-| ADMIN-08 | Phase 2: Painel Admin & CRUD | Passed |
-| PDF-01 | Phase 3: Geração Avançada de PDF | Passed |
-| PDF-02 | Phase 3: Geração Avançada de PDF | Passed |
-| PDF-03 | Phase 3: Geração Avançada de PDF | Passed |
-| PDF-04 | Phase 3: Geração Avançada de PDF | Passed |
-| SHARE-01 | Phase 4: QR Code & Compartilhamento | Passed |
-| SHARE-02 | Phase 4: QR Code & Compartilhamento | Passed |
+| ANLT-01 | Phase 1: Analytics & Histórico | Pending |
+| ANLT-02 | Phase 1: Analytics & Histórico | Pending |
+| INTG-01 | Phase 2: Integração WhatsApp Business | Pending |
 
 **Coverage:**
-- v1 requirements: 17 total
-- Mapped to phases: 17
+- v2 requirements: 3 total
+- Mapped to phases: 3
 - Unmapped: 0 ✓
-
----
-*Requirements defined: 2026-06-04*
-*Last updated: 2026-06-04 after initial definition*
