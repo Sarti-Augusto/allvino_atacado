@@ -7,12 +7,12 @@
 
 ### Analytics & Histórico (ANLT)
 
-- [ ] **ANLT-01**: Histórico de catálogos gerados por cliente autenticado visível no painel administrativo.
-- [ ] **ANLT-02**: Dashboard de cliques e acessos de clientes B2B em cada vinho para análise comercial.
+- [ ] **ANLT-01**: Histórico de catálogos/orçamentos PDF gerados por representante autenticado, visível e filtrável no painel `/admin`.
+- [ ] **ANLT-02**: Dashboard estatístico no `/admin` exibindo ranking e total de cliques/visualizações e downloads de cada vinho.
 
 ### Integrações (INTG)
 
-- [ ] **INTG-01**: Integração direta com a API do WhatsApp Business para envio automático do catálogo PDF selecionado.
+- [ ] **INTG-01**: Integração com a Evolution API para envio automático do catálogo PDF selecionado direto para o WhatsApp do cliente.
 
 ## Traceability
 
