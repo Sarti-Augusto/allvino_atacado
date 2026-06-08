@@ -546,7 +546,7 @@ export default function PricesPage() {
                         R$ {(price.preco_nacional * price.caixa_fechada_qnt).toFixed(2).replace('.', ',')}
                       </td>
                       <td className="py-3 px-4 text-center font-mono text-gold-500 font-bold bg-gold-500/5">
-                        R$ {(price.preco_regional * price.caixa_fechada_qnt).toFixed(2).replace('.', ',')}
+                        R$ {price.preco_regional.toFixed(2).replace('.', ',')}
                       </td>
                       <td className="py-3 px-4 text-stone-400 font-mono">{dataModificado}</td>
                       <td className="py-3 px-4 text-right">
