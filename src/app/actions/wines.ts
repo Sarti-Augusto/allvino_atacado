@@ -3,7 +3,7 @@
 // =====================================================================
 // Server Actions: listar, criar, editar, excluir e ordenar vinhos (Supabase)
 // =====================================================================
-import { createServerSupabase } from '@/lib/supabase';
+import { createServerSupabase, createPublicServerSupabase } from '@/lib/supabase';
 import type { Wine, WineFilters, WineType } from '@/types/wine';
 import crypto from 'crypto';
 
@@ -17,7 +17,7 @@ export interface FetchWinesResult {
 export async function fetchWinesServer(filters: WineFilters = {
   search: '', tipos: [], paises: [], uvas: [],
 }): Promise<FetchWinesResult> {
-  const supabase = createServerSupabase();
+  const supabase = createPublicServerSupabase();
 
   let q = supabase
     .from('wines')
