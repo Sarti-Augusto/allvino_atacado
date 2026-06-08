@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Phone, Wine as WineIcon, ArrowRight, Info } from 'lucide-react';
+import { Phone, Wine as WineIcon, ArrowRight, Info, User, Mail } from 'lucide-react';
 import { WineCard } from '@/components/catalog/WineCard';
 import { FilterBar } from '@/components/catalog/FilterBar';
 import { FloatingClientOrderButton } from '@/components/catalog/FloatingClientOrderButton';
@@ -30,7 +30,9 @@ export function ClientCatalogClient({ initialWines }: { initialWines: Wine[] }) 
 
   // Estados de controle de acesso e região
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [inputName, setInputName] = useState('');
   const [inputPhone, setInputPhone] = useState('');
+  const [inputEmail, setInputEmail] = useState('');
   const [inputUf, setInputUf] = useState('');
   const [selectedUf, setSelectedUf] = useState('');
   
@@ -43,10 +45,16 @@ export function ClientCatalogClient({ initialWines }: { initialWines: Wine[] }) 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedPhone = localStorage.getItem('allvino_client_phone');
+      const storedName = localStorage.getItem('allvino_client_name');
+      const storedEmail = localStorage.getItem('allvino_client_email');
       const storedUf = localStorage.getItem('allvino_client_uf');
-      if (storedPhone) {
+      
+      if (storedPhone && storedName && storedEmail) {
         setIsAuthorized(true);
       }
+      if (storedPhone) setInputPhone(storedPhone);
+      if (storedName) setInputName(storedName);
+      if (storedEmail) setInputEmail(storedEmail);
       if (storedUf) {
         setSelectedUf(storedUf);
         setInputUf(storedUf);
@@ -106,10 +114,21 @@ export function ClientCatalogClient({ initialWines }: { initialWines: Wine[] }) 
     e.preventDefault();
     setErrorAccess('');
 
+    if (!inputName.trim()) {
+      setErrorAccess('Por favor, informe seu nome.');
+      return;
+    }
+
     // Validação simples de telefone
     const cleanPhone = inputPhone.replace(/\D/g, '');
     if (cleanPhone.length < 10) {
       setErrorAccess('Por favor, insira um número de telefone com DDD válido.');
+      return;
+    }
+
+    // Validação simples de e-mail
+    if (!inputEmail.trim() || !inputEmail.includes('@')) {
+      setErrorAccess('Por favor, insira um e-mail válido.');
       return;
     }
 
@@ -121,6 +140,8 @@ export function ClientCatalogClient({ initialWines }: { initialWines: Wine[] }) 
     setLoadingAccess(true);
     try {
       localStorage.setItem('allvino_client_phone', inputPhone);
+      localStorage.setItem('allvino_client_name', inputName);
+      localStorage.setItem('allvino_client_email', inputEmail);
       localStorage.setItem('allvino_client_uf', inputUf);
       setSelectedUf(inputUf);
       setIsAuthorized(true);
@@ -144,14 +165,36 @@ export function ClientCatalogClient({ initialWines }: { initialWines: Wine[] }) 
               Acesso ao Catálogo
             </h2>
             <p className="mt-2 text-sm text-stone-400">
-              Digite seu WhatsApp de contato para navegar pelos vinhos, consultar fichas técnicas, ver preços e solicitar orçamentos.
+              Por favor, informe seus dados abaixo para acessar nosso catálogo B2B de vinhos.
             </p>
           </div>
 
           <form onSubmit={handleAccessSubmit} className="space-y-4">
+            {/* Nome */}
+            <div className="space-y-1.5">
+              <label htmlFor="client-name" className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                Seu Nome Completo *
+              </label>
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500">
+                  <User className="h-4 w-4" />
+                </div>
+                <input
+                  id="client-name"
+                  type="text"
+                  required
+                  value={inputName}
+                  onChange={(e) => setInputName(e.target.value)}
+                  placeholder="Ex: João Silva"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-950/40 py-3 pl-10 pr-4 text-sm text-stone-200 placeholder-stone-600 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500 transition duration-200"
+                />
+              </div>
+            </div>
+
+            {/* WhatsApp */}
             <div className="space-y-1.5">
               <label htmlFor="client-phone" className="text-xs font-bold uppercase tracking-wider text-stone-400">
-                Seu WhatsApp / Telefone
+                Seu WhatsApp / Telefone *
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500">
@@ -164,6 +207,27 @@ export function ClientCatalogClient({ initialWines }: { initialWines: Wine[] }) 
                   value={inputPhone}
                   onChange={(e) => setInputPhone(e.target.value)}
                   placeholder="Ex: (11) 98888-8888"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-950/40 py-3 pl-10 pr-4 text-sm text-stone-200 placeholder-stone-600 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500 transition duration-200"
+                />
+              </div>
+            </div>
+
+            {/* E-mail */}
+            <div className="space-y-1.5">
+              <label htmlFor="client-email" className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                Seu E-mail *
+              </label>
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500">
+                  <Mail className="h-4 w-4" />
+                </div>
+                <input
+                  id="client-email"
+                  type="email"
+                  required
+                  value={inputEmail}
+                  onChange={(e) => setInputEmail(e.target.value)}
+                  placeholder="Ex: joao@email.com"
                   className="w-full rounded-xl border border-stone-700 bg-stone-950/40 py-3 pl-10 pr-4 text-sm text-stone-200 placeholder-stone-600 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500 transition duration-200"
                 />
               </div>

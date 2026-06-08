@@ -16,7 +16,9 @@ export function FloatingClientOrderButton() {
   const [open, setOpen] = useState(false);
 
   // Estados do cliente e do representante
+  const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
   const [repName, setRepName] = useState('Central de Vendas');
   const [repPhone, setRepPhone] = useState('27995145536');
 
@@ -41,6 +43,8 @@ export function FloatingClientOrderButton() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setClientPhone(localStorage.getItem('allvino_client_phone') || '');
+      setClientName(localStorage.getItem('allvino_client_name') || '');
+      setClientEmail(localStorage.getItem('allvino_client_email') || '');
       
       const storedRepName = localStorage.getItem('allvino_client_rep_name');
       const storedRepPhone = localStorage.getItem('allvino_client_rep_phone');
@@ -67,8 +71,16 @@ export function FloatingClientOrderButton() {
   if (count === 0) return null;
 
   async function handleSendOrder() {
+    if (!clientName.trim()) {
+      alert('Por favor, informe seu nome.');
+      return;
+    }
     if (!clientPhone.trim()) {
       alert('Por favor, informe seu WhatsApp/Telefone de contato.');
+      return;
+    }
+    if (!clientEmail.trim() || !clientEmail.includes('@')) {
+      alert('Por favor, informe um e-mail válido.');
       return;
     }
     if (!repPhone.trim()) {
@@ -84,12 +96,15 @@ export function FloatingClientOrderButton() {
 
       // 1. Salvar no localStorage
       localStorage.setItem('allvino_client_phone', clientPhone);
+      localStorage.setItem('allvino_client_name', clientName);
+      localStorage.setItem('allvino_client_email', clientEmail);
       localStorage.setItem('allvino_client_rep_name', repName);
       localStorage.setItem('allvino_client_rep_phone', cleanRepPhone);
 
       // 2. Salvar histórico de orçamentos no banco de dados
+      const logClientName = clientEmail ? `${clientName} (${clientEmail})` : clientName;
       const shareRes = await shareCatalogHistoryAction({
-        clienteNome: 'Orçamento de Cliente (WhatsApp)',
+        clienteNome: logClientName,
         clienteWhatsapp: cleanClientPhone,
         pdfUrl: 'Solicitação de Orçamento via WhatsApp',
         representativeNome: repName,
@@ -130,7 +145,10 @@ export function FloatingClientOrderButton() {
         `${itemsListText}` +
         `----------------------------------------\n\n` +
         `*Total Estimado:* ${BRL(total)}\n\n` +
-        `*Meu Contato:* ${clientPhone}\n\n` +
+        `*Identificação do Cliente:*\n` +
+        `- Nome: ${clientName}\n` +
+        `- WhatsApp: ${clientPhone}\n` +
+        `- E-mail: ${clientEmail}\n\n` +
         `Por favor, me informe as condições comerciais para fecharmos o pedido. Obrigado!`;
 
       const encodedText = encodeURIComponent(messageText);
@@ -276,8 +294,24 @@ export function FloatingClientOrderButton() {
 
               <div className="space-y-3.5">
                 <div className="space-y-1">
+                  <label htmlFor="clientName" className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                    Seu Nome Completo *
+                  </label>
+                  <input
+                    id="clientName"
+                    type="text"
+                    required
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    disabled={sending}
+                    placeholder="Ex: João Silva"
+                    className="w-full rounded-lg border border-stone-700 bg-stone-900 px-3 py-2 text-xs text-stone-200 placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500 disabled:bg-stone-950 disabled:text-stone-600"
+                  />
+                </div>
+
+                <div className="space-y-1">
                   <label htmlFor="clientPhone" className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                    Seu WhatsApp (Contato)
+                    Seu WhatsApp / Telefone *
                   </label>
                   <input
                     id="clientPhone"
@@ -287,6 +321,22 @@ export function FloatingClientOrderButton() {
                     onChange={(e) => setClientPhone(e.target.value)}
                     disabled={sending}
                     placeholder="Ex: (11) 98888-8888"
+                    className="w-full rounded-lg border border-stone-700 bg-stone-900 px-3 py-2 text-xs text-stone-200 placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500 disabled:bg-stone-950 disabled:text-stone-600"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label htmlFor="clientEmail" className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                    Seu E-mail *
+                  </label>
+                  <input
+                    id="clientEmail"
+                    type="email"
+                    required
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    disabled={sending}
+                    placeholder="Ex: joao@email.com"
                     className="w-full rounded-lg border border-stone-700 bg-stone-900 px-3 py-2 text-xs text-stone-200 placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500 disabled:bg-stone-950 disabled:text-stone-600"
                   />
                 </div>

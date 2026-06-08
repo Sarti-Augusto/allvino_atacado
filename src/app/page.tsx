@@ -4,7 +4,7 @@
 // =====================================================================
 import { Suspense } from 'react';
 import { fetchWinesServer } from '@/app/actions/wines';
-import { CatalogClient } from './CatalogClient';
+import { HomeCatalogWrapper } from './HomeCatalogWrapper';
 
 export const revalidate = 60;
 
@@ -38,7 +38,7 @@ export default async function HomePage() {
       </section>
 
       <Suspense fallback={<div className="text-stone-400">Carregando catálogo...</div>}>
-        <CatalogClient initialWines={wines} />
+        <HomeCatalogWrapper initialWines={wines} />
       </Suspense>
     </main>
   );
