@@ -122,17 +122,29 @@ export function CatalogClient({ initialWines }: { initialWines: Wine[] }) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Simular UF:</span>
-            <select
-              value={previewUf}
-              onChange={(e) => setPreviewUf(e.target.value)}
-              className="bg-stone-900 border border-stone-800 rounded-lg px-3 py-1.5 text-xs text-gold-500 font-bold focus:outline-none focus:border-gold-500 cursor-pointer appearance-none min-w-[80px]"
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Simular UF:</span>
+              <select
+                value={previewUf}
+                onChange={(e) => setPreviewUf(e.target.value)}
+                className="bg-stone-900 border border-stone-800 rounded-lg px-3 py-1.5 text-xs text-gold-500 font-bold focus:outline-none focus:border-gold-500 cursor-pointer appearance-none min-w-[80px]"
+              >
+                {allowedUfs.map((uf) => (
+                  <option key={uf} value={uf} className="bg-stone-900 text-stone-200">{uf}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={async () => {
+                const supabase = createBrowserSupabase();
+                await supabase.auth.signOut();
+                window.location.reload();
+              }}
+              className="px-3 py-1.5 border border-stone-800 hover:border-stone-700 hover:bg-stone-900 text-stone-400 hover:text-stone-300 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200"
             >
-              {allowedUfs.map((uf) => (
-                <option key={uf} value={uf} className="bg-stone-900 text-stone-200">{uf}</option>
-              ))}
-            </select>
+              Sair
+            </button>
           </div>
         </div>
       )}

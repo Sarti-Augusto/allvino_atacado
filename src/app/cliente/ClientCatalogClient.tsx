@@ -110,22 +110,36 @@ export function ClientCatalogClient({ initialWines }: { initialWines: Wine[] }) 
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Estado (UF):</span>
-          <select
-            value={selectedUf}
-            onChange={(e) => {
-              setSelectedUf(e.target.value);
-              localStorage.setItem('allvino_client_uf', e.target.value);
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Estado (UF):</span>
+            <select
+              value={selectedUf}
+              onChange={(e) => {
+                setSelectedUf(e.target.value);
+                localStorage.setItem('allvino_client_uf', e.target.value);
+              }}
+              className="bg-stone-900 border border-stone-800 rounded-lg px-3 py-1.5 text-xs text-gold-500 font-bold focus:outline-none focus:border-gold-500 cursor-pointer appearance-none min-w-[120px]"
+            >
+              <option value="" className="bg-stone-900 text-stone-200">Preço Nacional</option>
+              {ESTADOS_UF.map((uf) => (
+                <option key={uf} value={uf} className="bg-stone-900 text-stone-200">{uf}</option>
+              ))}
+              <option value="OUTRO" className="bg-stone-900 text-gold-500 font-bold">Outro Estado / Central</option>
+            </select>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem('allvino_client_phone');
+              localStorage.removeItem('allvino_client_name');
+              localStorage.removeItem('allvino_client_email');
+              localStorage.removeItem('allvino_client_uf');
+              window.location.reload();
             }}
-            className="bg-stone-900 border border-stone-800 rounded-lg px-3 py-1.5 text-xs text-gold-500 font-bold focus:outline-none focus:border-gold-500 cursor-pointer appearance-none min-w-[120px]"
+            className="px-3 py-1.5 border border-stone-800 hover:border-stone-700 hover:bg-stone-900 text-stone-400 hover:text-stone-300 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200"
           >
-            <option value="" className="bg-stone-900 text-stone-200">Preço Nacional</option>
-            {ESTADOS_UF.map((uf) => (
-              <option key={uf} value={uf} className="bg-stone-900 text-stone-200">{uf}</option>
-            ))}
-            <option value="OUTRO" className="bg-stone-900 text-gold-500 font-bold">Outro Estado / Central</option>
-          </select>
+            Sair
+          </button>
         </div>
       </div>
 
