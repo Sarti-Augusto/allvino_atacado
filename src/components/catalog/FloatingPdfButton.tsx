@@ -357,9 +357,6 @@ export function FloatingPdfButton({ selectedUf = '', allowedUfs = [] }: Floating
         ...layoutSettings,
       });
 
-      // 2. Converter PDF Blob para String Base64
-      const base64Pdf = await blobToBase64(blob);
-
       // Nome do arquivo único
       const sanitizedClient = (clientName || 'cliente')
         .toLowerCase()
@@ -368,13 +365,30 @@ export function FloatingPdfButton({ selectedUf = '', allowedUfs = [] }: Floating
         .replace(/[^a-z0-9]/g, '-');
       const filename = `catalogo-${sanitizedClient}-${Date.now()}.pdf`;
 
-      // 3. Upload para o Supabase Storage via Server Action
-      const uploadRes = await uploadCatalogPdfAction(base64Pdf, filename);
-      if (!uploadRes.success || !uploadRes.url) {
-        throw new Error(uploadRes.error || 'Upload do PDF falhou.');
+      // 2. Upload DIRETO do navegador para o Supabase Storage (bypassa Vercel e o limite de 4.5MB!)
+      const supabaseBrowser = createBrowserSupabase();
+      
+      const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
+        .from('pdf-catalogs')
+        .upload(filename, blob, {
+          contentType: 'application/pdf',
+          upsert: true
+        });
+
+      if (uploadError) {
+        throw new Error(`Upload do PDF falhou: ${uploadError.message}`);
       }
 
-      const pdfUrl = uploadRes.url;
+      // 3. Obter a URL pública
+      const { data: publicUrlData } = supabaseBrowser.storage
+        .from('pdf-catalogs')
+        .getPublicUrl(filename);
+
+      if (!publicUrlData || !publicUrlData.publicUrl) {
+        throw new Error('Falha ao recuperar a URL pública do catálogo.');
+      }
+
+      const pdfUrl = publicUrlData.publicUrl;
 
       // 4. Salvar histórico e registrar métricas
       const shareRes = await shareCatalogHistoryAction({
