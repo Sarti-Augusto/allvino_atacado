@@ -2,6 +2,8 @@ import { createServerSupabase } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LogOut } from 'lucide-react';
+import { logoutAction } from '@/app/actions/auth';
 
 interface AdminDashboardLayoutProps {
   children: React.ReactNode;
@@ -65,6 +67,21 @@ export default async function AdminDashboardLayout({ children }: AdminDashboardL
               {profile.nome.substring(0, 2).toUpperCase()}
             </div>
           </Link>
+
+          <form action={async () => {
+            'use server';
+            await logoutAction();
+            redirect('/admin/login');
+          }}>
+            <button
+              type="submit"
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-850 hover:border-red-900/60 hover:bg-red-950/20 text-stone-400 hover:text-red-400 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 select-none focus:outline-none"
+              title="Sair do painel"
+            >
+              <LogOut size={13} />
+              <span className="hidden sm:inline">Sair</span>
+            </button>
+          </form>
         </div>
       </header>
  
