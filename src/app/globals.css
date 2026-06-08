@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* DARK THEME (Default) */
+  --color-stone-50: 250 249 246;  /* #FAF9F6 */
+  --color-stone-100: 242 240 234; /* #F2F0EA */
+  --color-stone-200: 225 221 208; /* #E1DDD0 */
+  --color-stone-300: 195 188 171; /* #C3BCAB */
+  --color-stone-400: 156 147 129; /* #9C9381 */
+  --color-stone-500: 118 109 91;  /* #766D5B */
+  --color-stone-600: 90 82 67;    /* #5A5243 */
+  --color-stone-700: 58 53 44;    /* #3A352C */
+  --color-stone-800: 26 22 23;    /* #1A1617 */
+  --color-stone-850: 18 15 16;    /* #120F10 */
+  --color-stone-900: 11 9 10;     /* #0B090A */
+  --color-stone-950: 5 4 4;       /* #050404 */
+
+  --color-gold-50: 252 249 238;   /* #FCF9EE */
+  --color-gold-100: 247 239 206;  /* #F7EFCE */
+  --color-gold-200: 239 224 147;  /* #EFE093 */
+  --color-gold-300: 230 207 89;   /* #E6CF59 */
+  --color-gold-400: 220 189 44;   /* #DCBD2C */
+  --color-gold-500: 212 175 55;   /* #D4AF37 */
+  --color-gold-600: 181 147 37;   /* #B59325 */
+  --color-gold-700: 145 116 23;   /* #917417 */
+  --color-gold-800: 110 85 13;    /* #6E550D */
+  --color-gold-900: 76 58 4;      /* #4C3A04 */
+}
+
+html.clean {
+  /* LIGHT/CLEAN THEME */
+  --color-stone-50: 11 9 10;       /* #0B090A - Darkest text headings */
+  --color-stone-100: 26 22 23;     /* #1A1617 - Dark text body */
+  --color-stone-200: 46 42 39;     /* #2E2A27 - Muted text */
+  --color-stone-300: 58 53 44;     /* #3A352C - Muted secondary */
+  --color-stone-400: 78 71 66;     /* #4E4742 - More visible muted text/labels */
+  --color-stone-500: 90 82 67;     /* #5A5243 - Lighter text / status */
+  --color-stone-600: 195 188 171;  /* #C3BCAB - Light medium border */
+  --color-stone-700: 225 221 208;  /* #E1DDD0 - Soft light border */
+  --color-stone-800: 255 255 255;  /* #FFFFFF - Crisp white card bg */
+  --color-stone-850: 255 255 255;  /* #FFFFFF - Crisp white card/container bg */
+  --color-stone-900: 250 248 245;  /* #FAF8F5 - Warm cream page bg */
+  --color-stone-950: 242 240 234;  /* #F2F0EA - Disabled buttons/inputs bg */
+
+  --color-gold-50: 252 249 238;
+  --color-gold-100: 247 239 206;
+  --color-gold-200: 239 224 147;
+  --color-gold-300: 11 9 10;       /* Black for high readability */
+  --color-gold-400: 11 9 10;       /* Black - maps price and gold numbers/letters to black */
+  --color-gold-500: 11 9 10;       /* Black - maps price and gold numbers/letters to black */
+  --color-gold-600: 11 9 10;       /* Black */
+  --color-gold-700: 11 9 10;       /* Black */
+  --color-gold-800: 11 9 10;       /* Black */
+  --color-gold-900: 11 9 10;       /* Black */
+}
+
+/* Regras de exibição do Logo */
+.logo-light {
+  display: block !important;
+}
+.logo-dark {
+  display: none !important;
+}
+
+html.clean .logo-light {
+  display: none !important;
+}
+html.clean .logo-dark {
+  display: block !important;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    /* Suaviza a tipografia serifada do logo */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-stone-900 text-stone-50 antialiased selection:bg-allvino-500 selection:text-white;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  h1, h2, h3 {
+    @apply font-display tracking-display text-stone-50;
+  }
+}
+
+@layer utilities {
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}

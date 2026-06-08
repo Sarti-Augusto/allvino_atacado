@@ -108,7 +108,7 @@ export async function fetchAnalyticsDashboardAction() {
 
     const { data: profile } = await supabase
       .from('admin_users')
-      .select('ativo')
+      .select('ativo, role')
       .eq('id', user.id)
       .single();
 
@@ -130,10 +130,16 @@ export async function fetchAnalyticsDashboardAction() {
 
     if (winesError) throw winesError;
 
-    // Carregar histórico de orçamentos
-    const { data: history, error: historyError } = await supabase
+    // Carregar histórico de orçamentos (representante vê apenas o próprio histórico)
+    let historyQuery = supabase
       .from('catalog_history')
-      .select('*')
+      .select('*');
+
+    if (profile.role !== 'admin') {
+      historyQuery = historyQuery.eq('representative_id', user.id);
+    }
+
+    const { data: history, error: historyError } = await historyQuery
       .order('criado_em', { ascending: false });
 
     if (historyError) throw historyError;

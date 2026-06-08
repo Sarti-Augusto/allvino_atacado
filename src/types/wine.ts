@@ -22,6 +22,7 @@ export const WINE_TYPES: WineType[] = [
 
 export interface Wine {
   id: string;
+  sku: string;
   nome: string;
   produtor: string;
   pais: string;
@@ -45,6 +46,7 @@ export interface Wine {
 export type SelectedWine = Pick<
   Wine,
   | 'id'
+  | 'sku'
   | 'nome'
   | 'produtor'
   | 'pais'
@@ -56,7 +58,11 @@ export type SelectedWine = Pick<
   | 'uva_varietal'
 > & {
   regiao?: string | null;
+  caixa_fechada_qnt?: number;
+  quantity?: number;
 };
+
+export type SortOption = 'destaque' | 'preco_asc' | 'preco_desc' | 'nome_asc' | 'nome_desc';
 
 // Filtros do catálogo
 export interface WineFilters {
@@ -66,6 +72,7 @@ export interface WineFilters {
   uvas: string[];
   precoMin?: number;
   precoMax?: number;
+  sortBy?: SortOption;
 }
 
 export const EMPTY_FILTERS: WineFilters = {
@@ -73,4 +80,5 @@ export const EMPTY_FILTERS: WineFilters = {
   tipos: [],
   paises: [],
   uvas: [],
+  sortBy: 'destaque',
 };

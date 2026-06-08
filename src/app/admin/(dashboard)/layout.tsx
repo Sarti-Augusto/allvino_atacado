@@ -1,5 +1,7 @@
 import { createServerSupabase } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface AdminDashboardLayoutProps {
   children: React.ReactNode;
@@ -29,26 +31,45 @@ export default async function AdminDashboardLayout({ children }: AdminDashboardL
   }
 
   return (
-    <div className="min-h-screen bg-[#0B090A] text-gray-100 flex flex-col">
+    <div className="min-h-screen bg-stone-900 text-stone-200 flex flex-col font-sans">
       {/* Header Premium do Painel Administrativo */}
-      <header className="border-b border-[#1A1617] bg-[#1A1617]/50 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+      <header className="border-b border-stone-850 bg-stone-900/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center shadow-soft">
         <div className="flex items-center gap-3">
-          <span className="text-[#A61C3C] font-bold text-xl tracking-wider">ALLVINO</span>
-          <span className="text-gray-400 text-xs px-2 py-0.5 rounded border border-gray-700 bg-gray-800">B2B ADMIN</span>
+          <Link href="/admin" className="font-display text-xl font-semibold tracking-display text-stone-50 transition hover:text-gold-400">
+            ALLVINO
+          </Link>
+          {profile.role === 'admin' ? (
+            <span className="text-[10px] font-bold text-gold-500 px-2 py-0.5 rounded-full border border-gold-500/20 bg-gold-500/5 tracking-wider uppercase select-none">
+              B2B Admin
+            </span>
+          ) : profile.role === 'owner' ? (
+            <span className="text-[10px] font-bold text-gold-500 px-2 py-0.5 rounded-full border border-gold-500/20 bg-gold-500/5 tracking-wider uppercase select-none">
+              Owner
+            </span>
+          ) : (
+            <span className="text-[10px] font-bold text-emerald-500 px-2 py-0.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 tracking-wider uppercase select-none">
+              Representante
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-gray-200">{profile.nome}</p>
-            <p className="text-xs text-gray-400 capitalize">{profile.role}</p>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-[#A61C3C] flex items-center justify-center font-bold text-white text-sm select-none">
-            {profile.nome.substring(0, 2).toUpperCase()}
-          </div>
+          <ThemeToggle />
+          <Link href="/admin/perfil" title="Configurações de Perfil" className="flex items-center gap-3 hover:opacity-80 transition active:scale-98">
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-semibold text-stone-100">{profile.nome}</p>
+              <p className="text-[9px] font-bold text-stone-400 uppercase tracking-wider mt-0.5">
+                {profile.role === 'admin' ? 'B2B Admin' : profile.role === 'owner' ? 'Owner' : 'Representante'}
+              </p>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-allvino-500 hover:bg-allvino-600 text-white flex items-center justify-center font-bold text-xs uppercase select-none tracking-wider shadow-sm">
+              {profile.nome.substring(0, 2).toUpperCase()}
+            </div>
+          </Link>
         </div>
       </header>
-
+ 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-8">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
         {children}
       </main>
     </div>

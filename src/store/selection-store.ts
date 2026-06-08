@@ -16,6 +16,7 @@ interface SelectionState {
   toggle:  (wine: SelectedWine) => void;
   add:     (wine: SelectedWine) => void;
   remove:  (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clear:   () => void;
   isSelected: (id: string) => boolean;
 }
@@ -33,19 +34,36 @@ export const useSelectionStore = create<SelectionState>()(
         if (next[wine.id]) {
           delete next[wine.id];
         } else {
-          next[wine.id] = wine;
+          next[wine.id] = { ...wine, quantity: 1 };
         }
         set(recalc(next));
       },
 
       add: (wine) => {
-        const next = { ...get().selected, [wine.id]: wine };
+        const next = { ...get().selected };
+        if (next[wine.id]) {
+          next[wine.id] = { ...next[wine.id], quantity: (next[wine.id].quantity || 1) + 1 };
+        } else {
+          next[wine.id] = { ...wine, quantity: 1 };
+        }
         set(recalc(next));
       },
 
       remove: (id) => {
         const next = { ...get().selected };
         delete next[id];
+        set(recalc(next));
+      },
+
+      updateQuantity: (id, quantity) => {
+        const { selected } = get();
+        if (!selected[id]) return;
+        const next = { ...selected };
+        if (quantity <= 0) {
+          delete next[id];
+        } else {
+          next[id] = { ...next[id], quantity };
+        }
         set(recalc(next));
       },
 
@@ -72,6 +90,6 @@ function recalc(selected: Record<string, SelectedWine>) {
   return {
     selected,
     count: list.length,
-    total: list.reduce((acc, w) => acc + w.preco_atacado, 0),
+    total: list.reduce((acc, w) => acc + w.preco_atacado * (w.quantity || 1), 0),
   };
 }

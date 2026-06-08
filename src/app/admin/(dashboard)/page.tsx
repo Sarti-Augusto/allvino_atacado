@@ -12,13 +12,28 @@ import {
   Download, 
   History,
   TrendingUp,
-  UserCheck
+  UserCheck,
+  ExternalLink,
+  Users,
+  Palette
 } from 'lucide-react';
 import Link from 'next/link';
 import { fetchAnalyticsDashboardAction } from '@/app/actions/analytics';
 
 export default async function AdminPage() {
   const supabase = createServerSupabase();
+
+  // 1. Obter usuário logado e verificar perfil
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) redirect('/admin/login');
+
+  const { data: profile } = await supabase
+    .from('admin_users')
+    .select('ativo, role, nome')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || !profile.ativo) redirect('/admin/login');
 
   // Queries básicas para obter estatísticas do catálogo no Supabase
   const [
@@ -40,13 +55,17 @@ export default async function AdminPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in text-gray-100">
+    <div className="space-y-8 animate-fade-in text-stone-200 font-sans">
       {/* Bloco de Boas Vindas */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Painel Administrativo</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Gerencie o catálogo de vinhos, orçamentos gerados e métricas de engajamento B2B.
+          <h1 className="font-display text-2xl font-semibold text-stone-50 tracking-display uppercase">
+            {profile.role === 'admin' ? 'Painel do Administrador' : 'Portal do Representante'}
+          </h1>
+          <p className="text-xs text-stone-400 mt-1">
+            {profile.role === 'admin' 
+              ? 'Gerencie o catálogo de vinhos, orçamentos gerados e métricas de engajamento B2B.'
+              : 'Acompanhe seus orçamentos compartilhados e a popularidade dos rótulos do catálogo.'}
           </p>
         </div>
 
@@ -58,10 +77,10 @@ export default async function AdminPage() {
         }}>
           <button
             type="submit"
-            className="flex items-center gap-2 px-4 py-2 border border-gray-800 hover:border-red-900/60 hover:bg-red-950/20 text-gray-400 hover:text-[#EF4444] rounded-lg text-sm font-medium transition-all select-none focus:outline-none"
+            className="flex items-center gap-2 px-4 py-2 border border-stone-850 hover:border-red-900/60 hover:bg-red-950/20 text-stone-400 hover:text-red-400 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 select-none focus:outline-none"
           >
-            <LogOut size={16} />
-            Sair do Painel
+            <LogOut size={14} />
+            Sair do Portal
           </button>
         </form>
       </div>
@@ -69,119 +88,185 @@ export default async function AdminPage() {
       {/* Grid de Estatísticas */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Total de Vinhos */}
-        <div className="bg-[#1A1617] border border-gray-800/60 rounded-xl p-5 flex items-center justify-between shadow-lg">
+        <div className="bg-stone-850 border border-stone-800 rounded-xl p-5 flex items-center justify-between shadow-soft">
           <div className="space-y-1">
-            <p className="text-xs text-gray-400 uppercase font-semibold tracking-wider">Vinhos Cadastrados</p>
-            <p className="text-2xl font-extrabold text-white">{totalWines ?? 0}</p>
+            <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Vinhos no Catálogo</p>
+            <p className="font-display text-2xl font-semibold text-stone-50">{totalWines ?? 0}</p>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-300">
-            <Wine size={18} />
+          <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-300">
+            <Wine size={16} />
           </div>
         </div>
 
         {/* Card 2: Visualizações */}
-        <div className="bg-[#1A1617] border border-gray-800/60 rounded-xl p-5 flex items-center justify-between shadow-lg">
+        <div className="bg-stone-850 border border-stone-800 rounded-xl p-5 flex items-center justify-between shadow-soft">
           <div className="space-y-1">
-            <p className="text-xs text-gray-400 uppercase font-semibold tracking-wider">Visualizações</p>
-            <p className="text-2xl font-extrabold text-blue-400">{analytics.totals.clicks}</p>
+            <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Visualizações</p>
+            <p className="font-display text-2xl font-semibold text-blue-400">{analytics.totals.clicks}</p>
           </div>
           <div className="w-10 h-10 rounded-lg bg-blue-950/10 border border-blue-900/30 flex items-center justify-center text-blue-400">
-            <Eye size={18} />
+            <Eye size={16} />
           </div>
         </div>
 
         {/* Card 3: Downloads de PDFs */}
-        <div className="bg-[#1A1617] border border-gray-800/60 rounded-xl p-5 flex items-center justify-between shadow-lg">
+        <div className="bg-stone-850 border border-stone-800 rounded-xl p-5 flex items-center justify-between shadow-soft">
           <div className="space-y-1">
-            <p className="text-xs text-gray-400 uppercase font-semibold tracking-wider">Downloads Rótulo</p>
-            <p className="text-2xl font-extrabold text-amber-400">{analytics.totals.downloads}</p>
+            <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Downloads Rótulo</p>
+            <p className="font-display text-2xl font-semibold text-gold-400">{analytics.totals.downloads}</p>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-amber-950/10 border border-amber-900/30 flex items-center justify-center text-amber-400">
-            <Download size={18} />
+          <div className="w-10 h-10 rounded-lg bg-gold-900/10 border border-gold-900/30 flex items-center justify-center text-gold-500">
+            <Download size={16} />
           </div>
         </div>
 
         {/* Card 4: Orçamentos Catalogados */}
-        <div className="bg-[#1A1617] border border-gray-800/60 rounded-xl p-5 flex items-center justify-between shadow-lg">
+        <div className="bg-stone-850 border border-stone-800 rounded-xl p-5 flex items-center justify-between shadow-soft">
           <div className="space-y-1">
-            <p className="text-xs text-gray-400 uppercase font-semibold tracking-wider">Orçamentos Gerados</p>
-            <p className="text-2xl font-extrabold text-[#A61C3C]">{analytics.totals.orcamentos}</p>
+            <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">
+              {profile.role === 'admin' ? 'Orçamentos Gerais' : 'Meus Orçamentos'}
+            </p>
+            <p className="font-display text-2xl font-semibold text-allvino-400">{analytics.totals.orcamentos}</p>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-[#A61C3C]/10 border border-[#A61C3C]/20 flex items-center justify-center text-[#A61C3C]">
-            <History size={18} />
+          <div className="w-10 h-10 rounded-lg bg-allvino-500/10 border border-allvino-500/20 flex items-center justify-center text-allvino-500">
+            <History size={16} />
           </div>
         </div>
       </div>
 
       {/* Seção de Ações Rápidas */}
-      <div className="bg-[#1A1617] border border-gray-800/60 rounded-xl p-6 shadow-lg">
-        <h2 className="text-sm font-bold text-gray-200 mb-4 tracking-wide uppercase">Ações Rápidas</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Link 
-            href="/admin/vinhos/novo"
-            className="p-4 border border-gray-800 rounded-lg bg-[#0B090A]/50 hover:bg-[#0B090A] hover:border-gray-700 transition-all cursor-pointer flex items-start gap-4"
-          >
-            <div className="w-10 h-10 rounded bg-[#A61C3C]/10 text-[#A61C3C] flex items-center justify-center flex-shrink-0">
-              <PlusCircle size={20} />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-200">Novo Vinho</h3>
-              <p className="text-xs text-gray-400 mt-1">
-                Adicione um novo rótulo ao catálogo B2B (Fase 2).
-              </p>
-            </div>
-          </Link>
+      <div className="bg-stone-850 border border-stone-800 rounded-xl p-6 shadow-soft">
+        <h2 className="text-xs font-bold text-stone-300 mb-4 tracking-wider uppercase">Ações Rápidas</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {profile.role === 'admin' ? (
+            <>
+              <Link 
+                href="/admin/vinhos/novo"
+                className="p-4 border border-stone-800 rounded-lg bg-stone-900/50 hover:bg-stone-900 hover:border-gold-500/20 transition-all cursor-pointer flex items-start gap-4"
+              >
+                <div className="w-10 h-10 rounded bg-allvino-500/10 text-allvino-500 flex items-center justify-center flex-shrink-0">
+                  <PlusCircle size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider">Novo Vinho</h3>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Adicione um novo rótulo ao catálogo B2B.
+                  </p>
+                </div>
+              </Link>
 
-          <Link 
-            href="/admin/vinhos"
-            className="p-4 border border-gray-800 rounded-lg bg-[#0B090A]/50 hover:bg-[#0B090A] hover:border-gray-700 transition-all cursor-pointer flex items-start gap-4"
-          >
-            <div className="w-10 h-10 rounded bg-gray-900 text-gray-300 flex items-center justify-center flex-shrink-0">
-              <FileText size={20} />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-200">Ver Catálogo</h3>
-              <p className="text-xs text-gray-400 mt-1">
-                Visualizar a listagem completa e gerenciar ativos, destaques e ordem.
-              </p>
-            </div>
-          </Link>
+              <Link 
+                href="/admin/vinhos"
+                className="p-4 border border-stone-800 rounded-lg bg-stone-900/50 hover:bg-stone-900 hover:border-gold-500/20 transition-all cursor-pointer flex items-start gap-4"
+              >
+                <div className="w-10 h-10 rounded bg-stone-800 text-stone-300 flex items-center justify-center flex-shrink-0">
+                  <FileText size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider">Ver Catálogo</h3>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Visualizar a listagem completa.
+                  </p>
+                </div>
+              </Link>
+
+              <Link 
+                href="/admin/precos"
+                className="p-4 border border-stone-800 rounded-lg bg-stone-900/50 hover:bg-stone-900 hover:border-gold-500/20 transition-all cursor-pointer flex items-start gap-4"
+              >
+                <div className="w-10 h-10 rounded bg-stone-850 border border-stone-800 text-stone-300 hover:border-gold-500/20 flex items-center justify-center flex-shrink-0">
+                  <Database size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider">Preços por UF</h3>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Importe e gerencie preços customizados por região.
+                  </p>
+                </div>
+              </Link>
+
+              <Link 
+                href="/admin/representantes"
+                className="p-4 border border-stone-800 rounded-lg bg-stone-900/50 hover:bg-stone-900 hover:border-gold-500/20 transition-all cursor-pointer flex items-start gap-4"
+              >
+                <div className="w-10 h-10 rounded bg-gold-500/10 text-gold-500 flex items-center justify-center flex-shrink-0">
+                  <Users size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider">Representantes</h3>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Cadastre e gerencie representantes e UFs.
+                  </p>
+                </div>
+              </Link>
+
+              <Link 
+                href="/admin/configuracao"
+                className="p-4 border border-stone-800 rounded-lg bg-stone-900/50 hover:bg-stone-900 hover:border-gold-500/20 transition-all cursor-pointer flex items-start gap-4"
+              >
+                <div className="w-10 h-10 rounded bg-stone-850 border border-stone-800 text-stone-300 hover:border-gold-500/20 flex items-center justify-center flex-shrink-0">
+                  <Palette size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider">Design PDF</h3>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Ajuste o template da capa e cores do PDF.
+                  </p>
+                </div>
+              </Link>
+            </>
+          ) : (
+            <Link 
+              href="/"
+              className="p-4 border border-stone-800 rounded-lg bg-stone-900/50 hover:bg-stone-900 hover:border-gold-500/20 transition-all cursor-pointer flex items-start gap-4 sm:col-span-2 lg:col-span-4"
+            >
+              <div className="w-10 h-10 rounded bg-gold-500/10 text-gold-500 flex items-center justify-center flex-shrink-0">
+                <Wine size={18} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider">Ir para o Catálogo de Vendas</h3>
+                <p className="text-xs text-stone-400 mt-1">
+                  Acesse a página principal para selecionar vinhos, montar orçamentos personalizados e compartilhar com seus clientes.
+                </p>
+              </div>
+            </Link>
+          )}
         </div>
       </div>
 
       {/* Grid de Analytics e Histórico */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Coluna 1: Ranking de Vinhos (Popularidade) */}
-        <div className="xl:col-span-1 bg-[#1A1617] border border-gray-800/60 rounded-xl p-5 shadow-lg flex flex-col">
+        <div className="xl:col-span-1 bg-stone-850 border border-stone-800 rounded-xl p-5 shadow-soft flex flex-col">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="text-[#A61C3C] h-5 w-5" />
-            <h2 className="text-sm font-bold text-gray-200 tracking-wide uppercase">Rótulos Populares (Top 10)</h2>
+            <TrendingUp className="text-allvino-500 h-4.5 w-4.5" />
+            <h2 className="text-xs font-bold text-stone-200 tracking-wider uppercase">Rótulos Populares (Top 10)</h2>
           </div>
           
-          <div className="flex-1 overflow-x-auto">
+          <div className="flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-stone-700">
             {analytics.ranking.length === 0 ? (
-              <p className="text-xs text-gray-500 text-center py-8">Nenhum evento registrado ainda.</p>
+              <p className="text-xs text-stone-500 text-center py-8">Nenhum evento registrado ainda.</p>
             ) : (
-              <table className="w-full text-xs text-left text-gray-300">
+              <table className="w-full text-xs text-left text-stone-300">
                 <thead>
-                  <tr className="border-b border-gray-800 text-gray-500 font-semibold">
+                  <tr className="border-b border-stone-800 text-stone-500 font-bold uppercase text-[9px] tracking-wider">
                     <th className="py-2">Vinho</th>
                     <th className="py-2 text-center">Vis</th>
                     <th className="py-2 text-center">Pdfs</th>
                     <th className="py-2 text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-850">
+                <tbody className="divide-y divide-stone-800/40">
                   {analytics.ranking.slice(0, 10).map((item: any, idx: number) => (
-                    <tr key={item.id} className="hover:bg-gray-800/20">
+                    <tr key={item.id} className="hover:bg-stone-900/10">
                       <td className="py-2.5 max-w-[150px] truncate">
-                        <span className="text-gray-500 mr-1.5 font-mono">{idx + 1}.</span>
-                        <span className="font-medium text-gray-200">{item.nome}</span>
-                        <span className="block text-[10px] text-gray-400 truncate">{item.produtor}</span>
+                        <span className="text-stone-500 mr-1 font-mono">{idx + 1}.</span>
+                        <span className="font-semibold text-stone-200">{item.nome}</span>
+                        <span className="block text-[9px] text-stone-500 truncate">{item.produtor}</span>
                       </td>
-                      <td className="py-2.5 text-center text-blue-400 font-medium">{item.clicks}</td>
-                      <td className="py-2.5 text-center text-amber-400 font-medium">{item.downloads}</td>
-                      <td className="py-2.5 text-right font-bold text-white">{item.total}</td>
+                      <td className="py-2.5 text-center text-blue-400 font-bold">{item.clicks}</td>
+                      <td className="py-2.5 text-center text-gold-500 font-bold">{item.downloads}</td>
+                      <td className="py-2.5 text-right font-bold text-stone-50">{item.total}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -191,22 +276,24 @@ export default async function AdminPage() {
         </div>
 
         {/* Coluna 2: Histórico Recente de PDFs */}
-        <div className="xl:col-span-2 bg-[#1A1617] border border-gray-800/60 rounded-xl p-5 shadow-lg flex flex-col">
+        <div className="xl:col-span-2 bg-stone-850 border border-stone-800 rounded-xl p-5 shadow-soft flex flex-col">
           <div className="flex items-center gap-2 mb-4">
-            <UserCheck className="text-green-500 h-5 w-5" />
-            <h2 className="text-sm font-bold text-gray-200 tracking-wide uppercase">Histórico de Orçamentos Gerados</h2>
+            <UserCheck className="text-emerald-500 h-4.5 w-4.5" />
+            <h2 className="text-xs font-bold text-stone-200 tracking-wider uppercase">
+              {profile.role === 'admin' ? 'Histórico Geral de Orçamentos' : 'Meus Orçamentos Recentes'}
+            </h2>
           </div>
 
-          <div className="flex-1 overflow-x-auto">
+          <div className="flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-stone-700">
             {analytics.history.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-gray-500">
-                <FileText className="h-8 w-8 stroke-[1.5] mb-2" />
-                <p className="text-xs">Nenhum orçamento exportado por representantes ainda.</p>
+              <div className="flex flex-col items-center justify-center py-10 text-stone-500">
+                <FileText className="h-8 w-8 stroke-[1.2] mb-2 text-stone-600" />
+                <p className="text-xs">Nenhum orçamento gerado ainda.</p>
               </div>
             ) : (
-              <table className="w-full text-xs text-left text-gray-300">
+              <table className="w-full text-xs text-left text-stone-300">
                 <thead>
-                  <tr className="border-b border-gray-800 text-gray-500 font-semibold">
+                  <tr className="border-b border-stone-800 text-stone-500 font-bold uppercase text-[9px] tracking-wider">
                     <th className="py-2">Cliente</th>
                     <th className="py-2">Representante</th>
                     <th className="py-2 text-center">Itens</th>
@@ -214,7 +301,7 @@ export default async function AdminPage() {
                     <th className="py-2 text-right">Mídia</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-850">
+                <tbody className="divide-y divide-stone-800/40">
                   {analytics.history.map((log: any) => {
                     const data = new Date(log.criado_em).toLocaleDateString('pt-BR', {
                       day: '2-digit',
@@ -224,20 +311,32 @@ export default async function AdminPage() {
                     });
                     const wineCount = Array.isArray(log.vinhos_selecionados) ? log.vinhos_selecionados.length : 0;
                     return (
-                      <tr key={log.id} className="hover:bg-gray-800/20">
+                      <tr key={log.id} className="hover:bg-stone-900/10">
                         <td className="py-2.5">
-                          <p className="font-semibold text-gray-200">{log.cliente_nome}</p>
+                          <p className="font-semibold text-stone-200">{log.cliente_nome}</p>
                           {log.cliente_whatsapp && (
-                            <span className="text-[10px] text-gray-400 font-mono">{log.cliente_whatsapp}</span>
+                            <span className="text-[9px] text-stone-500 font-mono">{log.cliente_whatsapp}</span>
                           )}
                         </td>
-                        <td className="py-2.5 text-gray-300">{log.representative_nome}</td>
-                        <td className="py-2.5 text-center text-rose-400 font-bold">{wineCount}</td>
-                        <td className="py-2.5 text-gray-400 font-mono">{data}</td>
+                        <td className="py-2.5 text-stone-300">{log.representative_nome}</td>
+                        <td className="py-2.5 text-center text-allvino-400 font-bold">{wineCount}</td>
+                        <td className="py-2.5 text-stone-400 font-mono">{data}</td>
                         <td className="py-2.5 text-right">
-                          <span className="inline-flex items-center gap-1 rounded bg-[#A61C3C]/10 text-[#A61C3C] text-[10px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
-                            PDF
-                          </span>
+                          {log.pdf_url ? (
+                            <a
+                              href={log.pdf_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 rounded bg-gold-500/10 hover:bg-gold-500/20 text-gold-500 text-[10px] px-2 py-1 font-bold uppercase tracking-wider transition-colors"
+                            >
+                              <ExternalLink size={10} />
+                              Ver PDF
+                            </a>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded bg-stone-800 text-stone-500 text-[10px] px-2 py-1 font-bold uppercase tracking-wider">
+                              PDF local
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
