@@ -1,20 +1,8 @@
 'use server';
 
-import { createServerSupabase } from '@/lib/supabase';
+import { createServerSupabase, getDbConfig } from '@/lib/supabase';
 import { Client } from 'pg';
 import { revalidatePath } from 'next/cache';
-
-// Configuração de conexão do PostgreSQL (direta para operações em lote eficientes)
-const dbConfig = {
-  user: 'postgres',
-  host: 'db.jlucrpzpacmlnmqfdana.supabase.co',
-  database: 'postgres',
-  password: 'Allvino#b2b',
-  port: 5432,
-  ssl: {
-    rejectUnauthorized: false
-  }
-};
 
 /**
  * Auxiliar para verificar se o usuário atual é administrador e ativo
@@ -69,7 +57,7 @@ export async function importRegionalPricesAction(
       return { success: false, importedCount: 0, skippedCount: 0, skippedSkus: [], error: 'Nenhum registro para importar.' };
     }
 
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     let importedCount = 0;
@@ -146,7 +134,7 @@ export interface RegionalPriceRow {
  */
 export async function fetchRegionalPricesAction(uf: string): Promise<{ prices?: RegionalPriceRow[]; error?: string }> {
   try {
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     const query = `
@@ -182,7 +170,7 @@ export async function deleteRegionalPriceAction(id: string): Promise<{ success?:
   try {
     await checkAdminAccess();
 
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     const query = 'DELETE FROM public.wine_regional_prices WHERE id = $1 RETURNING id;';

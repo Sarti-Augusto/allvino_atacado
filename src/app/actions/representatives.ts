@@ -1,6 +1,6 @@
 'use server';
 
-import { createServerSupabase } from '@/lib/supabase';
+import { createServerSupabase, getDbConfig } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 import { Client } from 'pg';
 
@@ -14,18 +14,6 @@ export interface Representative {
   budgets_count: number;
   ufs: string[];
 }
-
-// Configuração de conexão do PostgreSQL
-const dbConfig = {
-  user: 'postgres',
-  host: 'db.jlucrpzpacmlnmqfdana.supabase.co',
-  database: 'postgres',
-  password: 'Allvino#b2b',
-  port: 5432,
-  ssl: {
-    rejectUnauthorized: false
-  }
-};
 
 /**
  * Auxiliar para verificar se o usuário atual é administrador e ativo
@@ -61,7 +49,7 @@ export async function fetchRepresentativesAction(): Promise<{ representatives?: 
   try {
     await checkAdminAccess();
 
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     const query = `
@@ -96,7 +84,7 @@ export async function toggleRepresentativeActiveAction(id: string, active: boole
   try {
     await checkAdminAccess();
 
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     const query = `
@@ -162,7 +150,7 @@ export async function createRepresentativeAction(payload: {
     const userId = authData.user.id;
 
     // Conectar diretamente ao banco Postgres para forçar confirmação de e-mail e aplicar papel
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     // 1. Confirmar o e-mail na tabela auth.users
@@ -200,7 +188,7 @@ export async function deleteRepresentativeAction(id: string): Promise<{ success?
       return { error: 'Você não pode excluir sua própria conta.' };
     }
 
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     // Deletar da tabela auth.users. A FK em public.admin_users tem delete cascade,
@@ -233,7 +221,7 @@ export async function getRepresentativeNameByPhoneAction(phone: string): Promise
       return { error: 'Telefone inválido.' };
     }
 
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     // Compara o telefone ignorando parênteses, traços e espaços
@@ -263,7 +251,7 @@ export async function updateRepresentativeUfsAction(id: string, ufs: string[]): 
   try {
     await checkAdminAccess();
 
-    const client = new Client(dbConfig);
+    const client = new Client(getDbConfig());
     await client.connect();
 
     const query = `
