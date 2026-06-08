@@ -1,7 +1,6 @@
 'use server';
 
-import { createServerSupabase, getDbConfig } from '@/lib/supabase';
-import { Client } from 'pg';
+import { createServerSupabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 
 /**
@@ -57,8 +56,7 @@ export async function importRegionalPricesAction(
       return { success: false, importedCount: 0, skippedCount: 0, skippedSkus: [], error: 'Nenhum registro para importar.' };
     }
 
-    const client = new Client(getDbConfig());
-    await client.connect();
+    const supabase = createServerSupabase();
 
     let importedCount = 0;
     let skippedCount = 0;
@@ -74,30 +72,43 @@ export async function importRegionalPricesAction(
         continue;
       }
 
-      // 1. Buscar o ID do vinho pelo SKU
-      const wineQuery = 'SELECT id FROM public.wines WHERE sku = $1 LIMIT 1;';
-      const wineRes = await client.query(wineQuery, [sku]);
+      // 1. Buscar o ID do vinho pelo SKU usando supabase-js
+      const { data: wineData, error: wineError } = await supabase
+        .from('wines')
+        .select('id')
+        .eq('sku', sku)
+        .maybeSingle();
 
-      if (wineRes.rows.length === 0) {
+      if (wineError || !wineData) {
         skippedCount++;
         skippedSkus.push(sku);
         continue;
       }
 
-      const wineId = wineRes.rows[0].id;
+      const wineId = wineData.id;
 
-      // 2. Inserir ou atualizar na tabela wine_regional_prices
-      const priceQuery = `
-        INSERT INTO public.wine_regional_prices (wine_id, uf, preco)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (wine_id, uf) DO UPDATE 
-        SET preco = EXCLUDED.preco, atualizado_em = now();
-      `;
-      await client.query(priceQuery, [wineId, uf.toUpperCase(), price]);
+      // 2. Inserir ou atualizar na tabela wine_regional_prices usando upsert
+      const { error: upsertError } = await supabase
+        .from('wine_regional_prices')
+        .upsert({
+          wine_id: wineId,
+          uf: uf.toUpperCase(),
+          preco: price,
+          atualizado_em: new Date().toISOString()
+        }, {
+          onConflict: 'wine_id,uf'
+        });
+
+      if (upsertError) {
+        console.error(`Erro ao salvar preço regional para SKU ${sku}:`, upsertError);
+        skippedCount++;
+        skippedSkus.push(sku);
+        continue;
+      }
+
       importedCount++;
     }
 
-    await client.end();
     revalidatePath('/admin/precos');
 
     return {
@@ -134,30 +145,47 @@ export interface RegionalPriceRow {
  */
 export async function fetchRegionalPricesAction(uf: string): Promise<{ prices?: RegionalPriceRow[]; error?: string }> {
   try {
-    const client = new Client(getDbConfig());
-    await client.connect();
+    const supabase = createServerSupabase();
 
-    const query = `
-      SELECT 
-        rp.id,
-        rp.wine_id,
-        w.sku,
-        w.nome,
-        w.produtor,
-        w.preco_atacado AS preco_nacional,
-        rp.preco AS preco_regional,
-        rp.uf,
-        rp.atualizado_em
-      FROM public.wine_regional_prices rp
-      JOIN public.wines w ON w.id = rp.wine_id
-      WHERE rp.uf = $1
-      ORDER BY w.nome ASC;
-    `;
+    const { data, error } = await supabase
+      .from('wine_regional_prices')
+      .select(`
+        id,
+        wine_id,
+        preco,
+        uf,
+        atualizado_em,
+        wines (
+          sku,
+          nome,
+          produtor,
+          preco_atacado
+        )
+      `)
+      .eq('uf', uf.toUpperCase());
 
-    const { rows } = await client.query(query, [uf.toUpperCase()]);
-    await client.end();
+    if (error) {
+      return { error: error.message };
+    }
 
-    return { prices: rows as RegionalPriceRow[] };
+    // Mapear para o formato RegionalPriceRow esperado pela UI
+    const prices: RegionalPriceRow[] = (data || []).map((row: any) => {
+      // PostgREST retorna um objeto para relação belongs-to
+      const wine = Array.isArray(row.wines) ? row.wines[0] : row.wines;
+      return {
+        id: row.id,
+        wine_id: row.wine_id,
+        sku: wine?.sku || '',
+        nome: wine?.nome || '',
+        produtor: wine?.produtor || '',
+        preco_nacional: wine?.preco_atacado || 0,
+        preco_regional: row.preco,
+        uf: row.uf,
+        atualizado_em: row.atualizado_em
+      };
+    }).sort((a, b) => a.nome.localeCompare(b.nome));
+
+    return { prices };
   } catch (err: any) {
     return { error: err?.message || 'Erro ao buscar preços regionais.' };
   }
@@ -170,15 +198,14 @@ export async function deleteRegionalPriceAction(id: string): Promise<{ success?:
   try {
     await checkAdminAccess();
 
-    const client = new Client(getDbConfig());
-    await client.connect();
+    const supabase = createServerSupabase();
+    const { error } = await supabase
+      .from('wine_regional_prices')
+      .delete()
+      .eq('id', id);
 
-    const query = 'DELETE FROM public.wine_regional_prices WHERE id = $1 RETURNING id;';
-    const { rowCount } = await client.query(query, [id]);
-    await client.end();
-
-    if (rowCount === 0) {
-      return { error: 'Preço regional não encontrado.' };
+    if (error) {
+      return { error: error.message };
     }
 
     revalidatePath('/admin/precos');

@@ -49,29 +49,39 @@ export async function fetchRepresentativesAction(): Promise<{ representatives?: 
   try {
     await checkAdminAccess();
 
-    const client = new Client(getDbConfig());
-    await client.connect();
+    const supabase = createServerSupabase();
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select(`
+        id,
+        nome,
+        email,
+        role,
+        ativo,
+        criado_em,
+        ufs,
+        catalog_history (
+          id
+        )
+      `)
+      .order('criado_em', { ascending: false });
 
-    const query = `
-      SELECT 
-        au.id, 
-        au.nome, 
-        au.email, 
-        au.role, 
-        au.ativo, 
-        au.criado_em,
-        au.ufs,
-        COUNT(ch.id)::int AS budgets_count
-      FROM public.admin_users au
-      LEFT JOIN public.catalog_history ch ON ch.representative_id = au.id
-      GROUP BY au.id, au.ufs
-      ORDER BY au.criado_em DESC;
-    `;
+    if (error) {
+      return { error: error.message };
+    }
 
-    const { rows } = await client.query(query);
-    await client.end();
+    const representatives: Representative[] = (data || []).map((row: any) => ({
+      id: row.id,
+      nome: row.nome,
+      email: row.email,
+      role: row.role,
+      ativo: row.ativo,
+      criado_em: row.criado_em,
+      ufs: row.ufs || [],
+      budgets_count: row.catalog_history ? row.catalog_history.length : 0
+    }));
 
-    return { representatives: rows as Representative[] };
+    return { representatives };
   } catch (err: any) {
     return { error: err?.message || 'Erro ao buscar representantes.' };
   }
@@ -84,21 +94,14 @@ export async function toggleRepresentativeActiveAction(id: string, active: boole
   try {
     await checkAdminAccess();
 
-    const client = new Client(getDbConfig());
-    await client.connect();
+    const supabase = createServerSupabase();
+    const { error } = await supabase
+      .from('admin_users')
+      .update({ ativo: active })
+      .eq('id', id);
 
-    const query = `
-      UPDATE public.admin_users 
-      SET ativo = $1 
-      WHERE id = $2 
-      RETURNING id;
-    `;
-
-    const { rowCount } = await client.query(query, [active, id]);
-    await client.end();
-
-    if (rowCount === 0) {
-      return { error: 'Representante não encontrado.' };
+    if (error) {
+      return { error: error.message };
     }
 
     return { success: true };
@@ -150,26 +153,49 @@ export async function createRepresentativeAction(payload: {
     const userId = authData.user.id;
 
     // Conectar diretamente ao banco Postgres para forçar confirmação de e-mail e aplicar papel
-    const client = new Client(getDbConfig());
-    await client.connect();
+    try {
+      const client = new Client(getDbConfig());
+      await client.connect();
 
-    // 1. Confirmar o e-mail na tabela auth.users
-    await client.query(`
-      UPDATE auth.users 
-      SET email_confirmed_at = now(), confirmed_at = now() 
-      WHERE id = $1;
-    `, [userId]);
+      // 1. Confirmar o e-mail na tabela auth.users
+      await client.query(`
+        UPDATE auth.users 
+        SET email_confirmed_at = now(), confirmed_at = now() 
+        WHERE id = $1;
+      `, [userId]);
 
-    // 2. Garantir que o perfil foi inserido no public.admin_users
-    // (A trigger handle_new_admin_user deve ter feito isso automaticamente, mas vamos garantir)
-    await client.query(`
-      INSERT INTO public.admin_users (id, email, nome, role, ativo, ufs)
-      VALUES ($1, $2, $3, $4, true, $5)
-      ON CONFLICT (id) DO UPDATE 
-      SET role = EXCLUDED.role, nome = EXCLUDED.nome, ufs = EXCLUDED.ufs;
-    `, [userId, email, nome, role, ufs]);
+      // 2. Garantir que o perfil foi inserido no public.admin_users
+      await client.query(`
+        INSERT INTO public.admin_users (id, email, nome, role, ativo, ufs)
+        VALUES ($1, $2, $3, $4, true, $5)
+        ON CONFLICT (id) DO UPDATE 
+        SET role = EXCLUDED.role, nome = EXCLUDED.nome, ufs = EXCLUDED.ufs;
+      `, [userId, email, nome, role, ufs]);
 
-    await client.end();
+      await client.end();
+    } catch (dbErr) {
+      console.warn("Nota: Não foi possível conectar ao banco direto para auto-confirmar e-mail:", dbErr);
+      
+      // Se falhar a conexão direta (ex: Vercel sem IPv6), inserimos o perfil via Supabase Client
+      const supabase = createServerSupabase();
+      const { error: profileError } = await supabase
+        .from('admin_users')
+        .upsert({
+          id: userId,
+          email,
+          nome,
+          role,
+          ativo: true,
+          ufs
+        }, {
+          onConflict: 'id'
+        });
+      
+      if (profileError) {
+        console.error("Erro ao criar perfil de representante:", profileError);
+        return { error: `Usuário criado, mas falhou ao criar perfil: ${profileError.message}` };
+      }
+    }
 
     return { success: true };
   } catch (err: any) {
@@ -188,24 +214,33 @@ export async function deleteRepresentativeAction(id: string): Promise<{ success?
       return { error: 'Você não pode excluir sua própria conta.' };
     }
 
-    const client = new Client(getDbConfig());
-    await client.connect();
-
-    // Deletar da tabela auth.users. A FK em public.admin_users tem delete cascade,
-    // então a exclusão será propagada automaticamente.
-    const query = `
-      DELETE FROM auth.users 
-      WHERE id = $1;
-    `;
-
-    const { rowCount } = await client.query(query, [id]);
-    await client.end();
-
-    if (rowCount === 0) {
-      return { error: 'Usuário não encontrado na base de autenticação.' };
+    // Tentar deletar diretamente da tabela auth.users via postgres
+    try {
+      const client = new Client(getDbConfig());
+      await client.connect();
+      const query = 'DELETE FROM auth.users WHERE id = $1;';
+      await client.query(query, [id]);
+      await client.end();
+      return { success: true };
+    } catch (dbErr: any) {
+      console.warn("Falha ao excluir direto no auth.users via PostgreSQL:", dbErr);
+      
+      // Se a exclusão direta falhar (ex: no Vercel sem IPv6), removemos o perfil público
+      const supabase = createServerSupabase();
+      const { error } = await supabase
+        .from('admin_users')
+        .delete()
+        .eq('id', id);
+        
+      if (error) {
+        return { error: error.message };
+      }
+      
+      return { 
+        success: true, 
+        error: "Perfil público removido. A exclusão da conta de autenticação precisará ser concluída manualmente pelo painel do Supabase Auth devido à restrição de rede IPv6 do servidor." 
+      };
     }
-
-    return { success: true };
   } catch (err: any) {
     return { error: err?.message || 'Erro ao excluir representante.' };
   }
@@ -221,22 +256,23 @@ export async function getRepresentativeNameByPhoneAction(phone: string): Promise
       return { error: 'Telefone inválido.' };
     }
 
-    const client = new Client(getDbConfig());
-    await client.connect();
+    const supabase = createServerSupabase();
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('nome, whatsapp');
 
-    // Compara o telefone ignorando parênteses, traços e espaços
-    const query = `
-      SELECT nome 
-      FROM public.admin_users 
-      WHERE REGEXP_REPLACE(whatsapp, '\\D', '', 'g') = $1
-         OR REGEXP_REPLACE(whatsapp, '\\D', '', 'g') LIKE $2
-      LIMIT 1;
-    `;
-    const { rows } = await client.query(query, [cleanPhone, `%${cleanPhone}`]);
-    await client.end();
+    if (error) {
+      return { error: error.message };
+    }
 
-    if (rows.length > 0) {
-      return { nome: rows[0].nome };
+    const matched = (data || []).find((user: any) => {
+      if (!user.whatsapp) return false;
+      const cleanUserPhone = user.whatsapp.replace(/\D/g, '');
+      return cleanUserPhone.endsWith(cleanPhone) || cleanPhone.endsWith(cleanUserPhone);
+    });
+
+    if (matched) {
+      return { nome: matched.nome };
     }
     return { error: 'Representante não encontrado.' };
   } catch (err: any) {
@@ -251,21 +287,14 @@ export async function updateRepresentativeUfsAction(id: string, ufs: string[]): 
   try {
     await checkAdminAccess();
 
-    const client = new Client(getDbConfig());
-    await client.connect();
+    const supabase = createServerSupabase();
+    const { error } = await supabase
+      .from('admin_users')
+      .update({ ufs })
+      .eq('id', id);
 
-    const query = `
-      UPDATE public.admin_users 
-      SET ufs = $1 
-      WHERE id = $2 
-      RETURNING id;
-    `;
-
-    const { rowCount } = await client.query(query, [ufs, id]);
-    await client.end();
-
-    if (rowCount === 0) {
-      return { error: 'Representante não encontrado.' };
+    if (error) {
+      return { error: error.message };
     }
 
     return { success: true };
