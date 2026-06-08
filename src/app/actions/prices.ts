@@ -138,6 +138,7 @@ export interface RegionalPriceRow {
   preco_regional: number;
   uf: string;
   atualizado_em: string;
+  caixa_fechada_qnt: number;
 }
 
 /**
@@ -159,7 +160,8 @@ export async function fetchRegionalPricesAction(uf: string): Promise<{ prices?: 
           sku,
           nome,
           produtor,
-          preco_atacado
+          preco_atacado,
+          caixa_fechada_qnt
         )
       `)
       .eq('uf', uf.toUpperCase());
@@ -181,7 +183,8 @@ export async function fetchRegionalPricesAction(uf: string): Promise<{ prices?: 
         preco_nacional: wine?.preco_atacado || 0,
         preco_regional: row.preco,
         uf: row.uf,
-        atualizado_em: row.atualizado_em
+        atualizado_em: row.atualizado_em,
+        caixa_fechada_qnt: wine?.caixa_fechada_qnt || 1
       };
     }).sort((a, b) => a.nome.localeCompare(b.nome));
 
@@ -190,6 +193,7 @@ export async function fetchRegionalPricesAction(uf: string): Promise<{ prices?: 
     return { error: err?.message || 'Erro ao buscar preços regionais.' };
   }
 }
+
 
 /**
  * 3. Exclui um preço regional (voltando o vinho a usar o preço nacional padrão)
