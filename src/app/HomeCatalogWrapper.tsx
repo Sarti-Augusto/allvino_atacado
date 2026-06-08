@@ -203,11 +203,11 @@ export function HomeCatalogWrapper({ initialWines }: { initialWines: Wine[] }) {
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-allvino-500/10 text-gold-500 mb-4 ring-1 ring-allvino-500/20">
             <WineIcon className="h-6 w-6" />
           </div>
-          <h2 className="font-display text-2xl font-semibold text-stone-50">
-            ALLVINO B2B
+          <h2 className="font-display text-2xl font-semibold text-stone-50 uppercase tracking-display">
+            Para atacado
           </h2>
           <p className="mt-1.5 text-xs text-stone-400">
-            Selecione seu perfil de acesso para navegar no catálogo e montar orçamentos.
+            Preços e condições comerciais para cliente perfil B2B.
           </p>
         </div>
 
