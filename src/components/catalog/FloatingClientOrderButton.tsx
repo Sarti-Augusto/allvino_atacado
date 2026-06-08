@@ -287,7 +287,7 @@ export function FloatingClientOrderButton() {
             </div>
 
             {/* Inputs de Envio */}
-            <div className="mb-5 space-y-3.5 border-t border-stone-700 pt-4 max-h-[220px] sm:max-h-[260px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-stone-700">
+            <div className="mb-5 space-y-3.5 border-t border-stone-700 pt-4">
               <h3 className="font-display text-sm font-semibold text-stone-200">
                 Informações de Contato
               </h3>

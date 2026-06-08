@@ -1,6 +1,7 @@
 'use client';
 
-import { Search, X } from 'lucide-react';
+import { useState } from 'react';
+import { Search, X, ChevronDown } from 'lucide-react';
 import { WINE_TYPES, type WineFilters, type WineType } from '@/types/wine';
 
 interface FilterBarProps {
@@ -16,6 +17,8 @@ export function FilterBar({
   availableCountries,
   availableGrapes,
 }: FilterBarProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const toggleTipo = (t: WineType) => {
     const next = filters.tipos.includes(t)
       ? filters.tipos.filter((x) => x !== t)
@@ -51,31 +54,10 @@ export function FilterBar({
         />
       </div>
 
-      {/* Tipos de vinho (chips horizontais) */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-stone-700">
-        {WINE_TYPES.map((t) => {
-          const active = filters.tipos.includes(t);
-          return (
-            <button
-              key={t}
-              type="button"
-              onClick={() => toggleTipo(t)}
-              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition duration-200 ${
-                active
-                  ? 'border-allvino-500 bg-allvino-500 text-white shadow-md'
-                  : 'border-stone-700 bg-stone-900 text-stone-300 hover:border-gold-500/40'
-              }`}
-            >
-              {t}
-            </button>
-          );
-        })}
-      </div>
-
       {/* Faixa de preco e Ordenação */}
-      <div className="flex flex-wrap items-center gap-4 border-t border-stone-850 pt-2">
+      <div className="flex flex-wrap items-center gap-3 border-t border-stone-850 pt-3">
         <div className="flex items-center gap-2">
-          <label className="text-[10px] uppercase font-bold text-stone-400">Preço mín</label>
+          <span className="text-[10px] uppercase font-bold text-stone-400">Preço Mín</span>
           <input
             type="number"
             inputMode="numeric"
@@ -87,11 +69,11 @@ export function FilterBar({
                 precoMin: e.target.value ? Number(e.target.value) : undefined,
               })
             }
-            className="w-20 rounded border border-stone-700 bg-stone-900 px-2 py-1 text-xs text-stone-200 focus:border-gold-500 focus:outline-none transition"
-            placeholder="R$"
+            className="w-20 rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-gold-500 focus:outline-none transition"
+            placeholder="Min"
           />
           <span className="text-stone-600">-</span>
-          <label className="text-[10px] uppercase font-bold text-stone-400">max</label>
+          <span className="text-[10px] uppercase font-bold text-stone-400">Máx</span>
           <input
             type="number"
             inputMode="numeric"
@@ -103,12 +85,12 @@ export function FilterBar({
                 precoMax: e.target.value ? Number(e.target.value) : undefined,
               })
             }
-            className="w-20 rounded border border-stone-700 bg-stone-900 px-2 py-1 text-xs text-stone-200 focus:border-gold-500 focus:outline-none transition"
-            placeholder="R$"
+            className="w-20 rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-gold-500 focus:outline-none transition"
+            placeholder="Max"
           />
         </div>
 
-        <div className="flex items-center gap-2 ml-0 sm:ml-auto">
+        <div className="flex items-center gap-2">
           <label htmlFor="sort-by" className="text-[10px] uppercase font-bold text-stone-400">Ordenar por</label>
           <select
             id="sort-by"
@@ -124,6 +106,20 @@ export function FilterBar({
           </select>
         </div>
 
+        {/* Botão de Expandir Filtros de Categoria e País */}
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
+            isExpanded
+              ? 'border-gold-500 bg-gold-500/10 text-gold-400 shadow-lift'
+              : 'border-stone-700 bg-stone-900 text-stone-300 hover:border-gold-500/40'
+          }`}
+        >
+          <span>Categorias & Países</span>
+          <ChevronDown size={14} className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+        </button>
+
         {activeCount > 0 && (
           <button
             type="button"
@@ -138,39 +134,70 @@ export function FilterBar({
                 sortBy: 'destaque',
               })
             }
-            className="ml-auto sm:ml-0 flex items-center gap-1 rounded-full px-3 py-1 text-xs text-gold-500 hover:bg-stone-900 hover:text-gold-400 transition"
+            className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs text-gold-500 hover:bg-stone-900 hover:text-gold-400 transition"
           >
             <X className="h-3 w-3" />
-            Limpar {activeCount}
+            Limpar ({activeCount})
           </button>
         )}
       </div>
 
-      {/* Paises (chips colapsaveis) */}
-      {availableCountries.length > 0 && (
-        <div className="pt-1">
-          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-stone-400">
-            País
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {availableCountries.map((p) => {
-              const active = filters.paises.includes(p);
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => togglePais(p)}
-                  className={`rounded-full border px-2.5 py-1 text-xs transition duration-200 ${
-                    active
-                      ? 'border-gold-500 bg-gold-500/10 text-gold-400'
-                      : 'border-stone-700 bg-stone-900 text-stone-300 hover:border-gold-500/30'
-                  }`}
-                >
-                  {p}
-                </button>
-              );
-            })}
+      {/* Menu suspenso expansível de filtros */}
+      {isExpanded && (
+        <div className="space-y-4 border-t border-stone-850 pt-3 animate-fade-in">
+          {/* Tipos de vinho */}
+          <div>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+              Categorias (Tipo de Vinho)
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {WINE_TYPES.map((t) => {
+                const active = filters.tipos.includes(t);
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => toggleTipo(t)}
+                    className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition duration-200 ${
+                      active
+                        ? 'border-allvino-500 bg-allvino-500 text-white shadow-md'
+                        : 'border-stone-700 bg-stone-900 text-stone-300 hover:border-gold-500/40'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
+          {/* Países */}
+          {availableCountries.length > 0 && (
+            <div className="border-t border-stone-850/50 pt-3">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                Países
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {availableCountries.map((p) => {
+                  const active = filters.paises.includes(p);
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => togglePais(p)}
+                      className={`rounded-full border px-2.5 py-1 text-xs transition duration-200 ${
+                        active
+                          ? 'border-gold-500 bg-gold-500/10 text-gold-400'
+                          : 'border-stone-700 bg-stone-900 text-stone-300 hover:border-gold-500/30'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
